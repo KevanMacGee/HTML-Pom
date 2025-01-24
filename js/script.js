@@ -4,8 +4,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const toggleBtn = document.getElementById('toggleBtn');
     const resetBtn = document.getElementById('resetBtn');
 
-    const WORK_TIME = 45 * 60; // 45 minutes in seconds
-    const BREAK_TIME = 15 * 60; // 15 minutes in seconds
+    const WORK_TIME = 0.2 * 60; // 45 minutes in seconds
+    const BREAK_TIME = 0.1 * 60; // 15 minutes in seconds
 
     let timeLeft = WORK_TIME;
     let isRunning = false;
