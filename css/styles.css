@@ -25,20 +25,20 @@ body {
 }
 
 .timer-header {
-    background: linear-gradient(to bottom, #1a73e8, #1557b0);
+    background: linear-gradient(to bottom, #4dabf7, #3994e4);
     margin: -2rem -2rem 1rem -2rem;
     padding: 1rem;
     border-top-left-radius: 15px;
     border-top-right-radius: 15px;
-    border-bottom: 1px solid #1557b0;
+    border-bottom: 1px solid #2c3238;
 }
 
 .timer-header h1 {
     color: #ffffff;
     margin: 0;
     font-size: 2rem;
-    font-weight: 800;
-    text-shadow: 0 2px 6px rgba(0,0,0,0.4);
+    font-weight: 700;
+    text-shadow: 0 2px 4px rgba(0,0,0,0.3);
 }
 
 .timer-display {
