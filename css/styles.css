@@ -1,4 +1,5 @@
 body {
+    background: linear-gradient(45deg, hsla(321, 82%, 48%, 1) 0%, hsla(219, 71%, 40%, 1) 100%);
     min-height: 100vh;
     margin: 0;
     padding: 0;
@@ -10,8 +11,6 @@ body {
 .container {
     margin: 0;
     padding: 2rem;
-    width: 100%;
-    max-width: 500px;
 }
 
 .timer-container {
@@ -20,33 +19,30 @@ body {
     padding: 2rem;
     box-shadow: 0 0 25px rgba(0, 0, 0, 0.4);
     color: #f8f9fa;
-    min-width: 320px;
-    width: 100%;
 }
 
 .timer-header {
-    background: linear-gradient(to bottom, #4dabf7, #3994e4);
+    background: linear-gradient(to bottom, #1a73e8, #1557b0);
     margin: -2rem -2rem 1rem -2rem;
     padding: 1rem;
     border-top-left-radius: 15px;
     border-top-right-radius: 15px;
-    border-bottom: 1px solid #2c3238;
+    border-bottom: 1px solid #1557b0;
 }
 
 .timer-header h1 {
     color: #ffffff;
     margin: 0;
     font-size: 2rem;
-    font-weight: 700;
-    text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+    font-weight: 800;
+    text-shadow: 0 2px 6px rgba(0,0,0,0.4);
 }
 
 .timer-display {
-    font-size: clamp(4rem, 10vw, 6rem);
+    font-size: 6rem;
     font-weight: bold;
     margin: 2rem 0;
     color: #fff;
-    line-height: 1;
 }
 
 .status-text {
@@ -55,29 +51,24 @@ body {
     color: #e9ecef;
 }
 
-body {
-    animation: pulse 20s infinite;
-  }
-  
-  @keyframes pulse {
-    0%, 100% {
-      background-color: #2406d1b9;
+@keyframes pulse {
+    0% {
+        opacity: 1;
     }
+
     50% {
-      background-color: #9e42b0;
+        opacity: 0.25;
     }
-  }
+
+    100% {
+        opacity: 1;
+    }
+}
+
+.pulse-animation {
+    animation: pulse 2s ease-in-out infinite;
+}
 
 .btn-group {
     gap: 0.5rem;
-}
-
-@media (max-width: 480px) {
-    .container {
-        padding: 1rem;
-    }
-    
-    .timer-container {
-        padding: 1.5rem;
-    }
 }
