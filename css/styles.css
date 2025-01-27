@@ -1,17 +1,17 @@
 body {
-    background: linear-gradient(45deg, hsla(321, 85%, 52%, 1) 0%, hsla(219, 75%, 45%, 1) 100%);
     min-height: 100vh;
     margin: 0;
     padding: 0;
     display: flex;
     align-items: center;
     justify-content: center;
-    animation: gradientPulse 6s cubic-bezier(0.4, 0, 0.6, 1) infinite;
 }
 
 .container {
     margin: 0;
     padding: 2rem;
+    width: 100%;
+    max-width: 500px;
 }
 
 .timer-container {
@@ -20,6 +20,8 @@ body {
     padding: 2rem;
     box-shadow: 0 0 25px rgba(0, 0, 0, 0.4);
     color: #f8f9fa;
+    min-width: 320px;
+    width: 100%;
 }
 
 .timer-header {
@@ -40,10 +42,11 @@ body {
 }
 
 .timer-display {
-    font-size: 6rem;
+    font-size: clamp(4rem, 10vw, 6rem);
     font-weight: bold;
     margin: 2rem 0;
     color: #fff;
+    line-height: 1;
 }
 
 .status-text {
@@ -52,36 +55,29 @@ body {
     color: #e9ecef;
 }
 
-@keyframes pulse {
-    0% {
-        opacity: 1;
-    }
-
-    50% {
-        opacity: 0.25;
-    }
-
-    100% {
-        opacity: 1;
-    }
-}
-
-.pulse-animation {
-    animation: pulse 2s ease-in-out infinite;
-}
-
-@keyframes gradientPulse {
-    0% {
-        background: linear-gradient(45deg, hsla(321, 85%, 52%, 1) 0%, hsla(219, 75%, 45%, 1) 100%);
+body {
+    animation: pulse 20s infinite;
+  }
+  
+  @keyframes pulse {
+    0%, 100% {
+      background-color: #2406d1b9;
     }
     50% {
-        background: linear-gradient(45deg, hsla(321, 80%, 40%, 1) 0%, hsla(219, 70%, 35%, 1) 100%);
+      background-color: #9e42b0;
     }
-    100% {
-        background: linear-gradient(45deg, hsla(321, 85%, 52%, 1) 0%, hsla(219, 75%, 45%, 1) 100%);
-    }
-}
+  }
 
 .btn-group {
     gap: 0.5rem;
+}
+
+@media (max-width: 480px) {
+    .container {
+        padding: 1rem;
+    }
+    
+    .timer-container {
+        padding: 1.5rem;
+    }
 }
