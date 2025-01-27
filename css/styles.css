@@ -1,5 +1,5 @@
 body {
-    background: linear-gradient(45deg, hsla(321, 82%, 48%, 1) 0%, hsla(219, 71%, 40%, 1) 100%);
+    animation: pulse 20s infinite;
     min-height: 100vh;
     margin: 0;
     padding: 0;
@@ -7,6 +7,15 @@ body {
     align-items: center;
     justify-content: center;
 }
+
+@keyframes pulse {
+    0%, 100% {
+      background-color: #831858;
+    }
+    50% {
+      background-color: #14536f;
+    }
+  }
 
 .container {
     margin: 0;
@@ -49,24 +58,6 @@ body {
     font-size: 1.5rem;
     margin: 1rem 0;
     color: #e9ecef;
-}
-
-@keyframes pulse {
-    0% {
-        opacity: 1;
-    }
-
-    50% {
-        opacity: 0.25;
-    }
-
-    100% {
-        opacity: 1;
-    }
-}
-
-.pulse-animation {
-    animation: pulse 2s ease-in-out infinite;
 }
 
 .btn-group {
