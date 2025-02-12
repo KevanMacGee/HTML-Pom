@@ -15,6 +15,10 @@ document.addEventListener('DOMContentLoaded', () => {
     let isWorkTime = true;
     let timer = null;
 
+    // Add sound file constants
+    const workSound = new Audio('sounds/start-work.mp3');
+    const breakSound = new Audio('sounds/start-break.mp3');
+
     function updateDisplay() {
         const minutes = Math.floor(timeLeft / 60);
         const seconds = timeLeft % 60;
@@ -39,13 +43,25 @@ document.addEventListener('DOMContentLoaded', () => {
             toggleBtn.textContent = 'Start';
             toggleBtn.className = 'btn btn-primary btn-lg';
         } else {
+            // Play sound when timer starts based on current mode
+            if (isWorkTime) {
+                workSound.play();
+            } else {
+                breakSound.play();
+            }
+
             timer = setInterval(() => {
                 timeLeft--;
                 if (timeLeft < 0) {
                     isWorkTime = !isWorkTime;
                     timeLeft = isWorkTime ? WORK_TIME : BREAK_TIME;
                     updateStatus();
-                    new Audio('data:audio/wav;base64,UklGRnoGAABXQVZFZm10...').play();
+                    // Play sound at transition
+                    if (isWorkTime) {
+                        workSound.play();
+                    } else {
+                        breakSound.play();
+                    }
                 }
                 updateDisplay();
             }, 1000);
