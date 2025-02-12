@@ -6,6 +6,7 @@ Version 0.2
 To do:
 ~~* No options yet.~~
 * Alarm sounds are stlll rudimentary.
+* Modal styling is basic, not attractive
 * Needs mobile fine tuning.
 * Interface design not final.
 
