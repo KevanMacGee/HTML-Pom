@@ -117,9 +117,22 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function saveSettings() {
-        WORK_TIME = parseInt(workDurationInput.value) * 60;
-        BREAK_TIME = parseInt(breakDurationInput.value) * 60;
-        LONG_BREAK_TIME = parseInt(longBreakDurationInput.value) * 60;
+        // Convert input values to numbers and validate (minimum 0.25 minutes = 15 seconds)
+        const workMinutes = Math.max(0.25, parseFloat(workDurationInput.value) || 0.25);
+        const breakMinutes = Math.max(0.25, parseFloat(breakDurationInput.value) || 0.25);
+        const longBreakMinutes = Math.max(0.25, parseFloat(longBreakDurationInput.value) || 0.25);
+
+        // Update the input values to show validated numbers
+        workDurationInput.value = workMinutes;
+        breakDurationInput.value = breakMinutes;
+        longBreakDurationInput.value = longBreakMinutes;
+
+        // Convert minutes to seconds and save
+        WORK_TIME = Math.round(workMinutes * 60);
+        BREAK_TIME = Math.round(breakMinutes * 60);
+        LONG_BREAK_TIME = Math.round(longBreakMinutes * 60);
+
+        // Reset timer with new values
         resetTimer();
         bootstrap.Modal.getInstance(document.getElementById('settingsModal')).hide();
     }
