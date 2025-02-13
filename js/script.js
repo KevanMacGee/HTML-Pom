@@ -7,10 +7,12 @@ document.addEventListener('DOMContentLoaded', () => {
     const saveSettingsBtn = document.getElementById('saveSettings');
     const workDurationInput = document.getElementById('workDuration');
     const breakDurationInput = document.getElementById('breakDuration');
+    const longBreakDurationInput = document.getElementById('longBreakDuration');
 
     // Changed from 45 and 15 minutes to 15 seconds each
     let WORK_TIME = 15;  // 15 seconds
     let BREAK_TIME = 15; // 15 seconds
+    let LONG_BREAK_TIME = 15 * 60; // 15 minutes in seconds
     let timeLeft = WORK_TIME;
     let isRunning = false;
     let isWorkTime = true;
@@ -87,12 +89,14 @@ document.addEventListener('DOMContentLoaded', () => {
     function openSettings() {
         workDurationInput.value = WORK_TIME / 60;
         breakDurationInput.value = BREAK_TIME / 60;
+        longBreakDurationInput.value = LONG_BREAK_TIME / 60;
         new bootstrap.Modal(document.getElementById('settingsModal')).show();
     }
 
     function saveSettings() {
         WORK_TIME = parseInt(workDurationInput.value) * 60;
         BREAK_TIME = parseInt(breakDurationInput.value) * 60;
+        LONG_BREAK_TIME = parseInt(longBreakDurationInput.value) * 60;
         resetTimer();
         bootstrap.Modal.getInstance(document.getElementById('settingsModal')).hide();
     }
