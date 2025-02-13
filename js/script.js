@@ -8,16 +8,17 @@ document.addEventListener('DOMContentLoaded', () => {
     const workDurationInput = document.getElementById('workDuration');
     const breakDurationInput = document.getElementById('breakDuration');
 
-    let WORK_TIME = 45 * 60;
-    let BREAK_TIME = 15 * 60;
+    // Changed from 45 and 15 minutes to 15 seconds each
+    let WORK_TIME = 15;  // 15 seconds
+    let BREAK_TIME = 15; // 15 seconds
     let timeLeft = WORK_TIME;
     let isRunning = false;
     let isWorkTime = true;
     let timer = null;
 
     // Add sound file constants
-    const workSound = new Audio('sounds/start-work.mp3');
-    const breakSound = new Audio('sounds/start-break.mp3');
+    const workSound = new Audio('sounds/work-start.mp3');
+    const breakSound = new Audio('sounds/break-start.mp3');
 
     function updateDisplay() {
         const minutes = Math.floor(timeLeft / 60);
