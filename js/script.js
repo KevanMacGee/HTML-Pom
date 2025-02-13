@@ -8,6 +8,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const workDurationInput = document.getElementById('workDuration');
     const breakDurationInput = document.getElementById('breakDuration');
     const longBreakDurationInput = document.getElementById('longBreakDuration');
+    const cycleDisplay = document.getElementById('cycleCount');
+    let cyclesCompleted = 0;
 
     // Changed from 45 and 15 minutes to 15 seconds each
     let WORK_TIME = 15;  // 15 seconds
@@ -40,6 +42,10 @@ document.addEventListener('DOMContentLoaded', () => {
         statusDisplay.className = `status-text text-${isWorkTime ? 'success' : 'primary'}${isRunning ? ' pulse-animation' : ''}`;
     }
 
+    function updateCycleCount() {
+        cycleDisplay.textContent = `Cycles completed: ${cyclesCompleted}`;
+    }
+
     function toggleTimer() {
         if (isRunning) {
             clearInterval(timer);
@@ -57,14 +63,16 @@ document.addEventListener('DOMContentLoaded', () => {
                 timeLeft--;
                 if (timeLeft < 0) {
                     isWorkTime = !isWorkTime;
-                    timeLeft = isWorkTime ? WORK_TIME : BREAK_TIME;
-                    updateStatus();
-                    // Play sound at transition
                     if (isWorkTime) {
+                        cyclesCompleted++; // Increment counter when work period starts
+                        updateCycleCount();
                         workSound.play();
+                        timeLeft = WORK_TIME;
                     } else {
                         breakSound.play();
+                        timeLeft = BREAK_TIME;
                     }
+                    updateStatus();
                 }
                 updateDisplay();
             }, 1000);
@@ -82,6 +90,8 @@ document.addEventListener('DOMContentLoaded', () => {
         timeLeft = WORK_TIME;
         toggleBtn.textContent = 'Start';
         toggleBtn.className = 'btn btn-primary btn-lg';
+        cyclesCompleted = 0;
+        updateCycleCount();
         updateDisplay();
         updateStatus();
     }
@@ -107,4 +117,5 @@ document.addEventListener('DOMContentLoaded', () => {
     resetBtn.addEventListener('click', resetTimer);
 
     updateDisplay();
+    updateCycleCount();
 });
