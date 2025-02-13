@@ -15,9 +15,11 @@ document.addEventListener('DOMContentLoaded', () => {
     let WORK_TIME = 15;  // 15 seconds
     let BREAK_TIME = 15; // 15 seconds
     let LONG_BREAK_TIME = 15 * 60; // 15 minutes in seconds
+    const CYCLES_BEFORE_LONG_BREAK = 4;
     let timeLeft = WORK_TIME;
     let isRunning = false;
     let isWorkTime = true;
+    let isLongBreak = false;
     let timer = null;
 
     // Add sound file constants
@@ -31,7 +33,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function updateStatus() {
-        let statusText = isWorkTime ? 'Work Time' : 'Break Time';
+        let statusText = isWorkTime ? 'Work Time' : (isLongBreak ? 'Long Break' : 'Break Time');
         if (!isRunning) {
             statusText += ' (Paused)';
             statusDisplay.classList.remove('pulse-animation');
@@ -62,15 +64,25 @@ document.addEventListener('DOMContentLoaded', () => {
             timer = setInterval(() => {
                 timeLeft--;
                 if (timeLeft < 0) {
-                    isWorkTime = !isWorkTime;
                     if (isWorkTime) {
-                        cyclesCompleted++; // Increment counter when work period starts
+                        isWorkTime = false;
+                        cyclesCompleted++;
                         updateCycleCount();
-                        workSound.play();
-                        timeLeft = WORK_TIME;
-                    } else {
+                        
+                        // Check if we should trigger a long break
+                        if (cyclesCompleted % CYCLES_BEFORE_LONG_BREAK === 0) {
+                            isLongBreak = true;
+                            timeLeft = LONG_BREAK_TIME;
+                        } else {
+                            isLongBreak = false;
+                            timeLeft = BREAK_TIME;
+                        }
                         breakSound.play();
-                        timeLeft = BREAK_TIME;
+                    } else {
+                        isWorkTime = true;
+                        isLongBreak = false;
+                        timeLeft = WORK_TIME;
+                        workSound.play();
                     }
                     updateStatus();
                 }
@@ -87,13 +99,14 @@ document.addEventListener('DOMContentLoaded', () => {
         clearInterval(timer);
         isRunning = false;
         isWorkTime = true;
+        isLongBreak = false;
+        cyclesCompleted = 0;
         timeLeft = WORK_TIME;
         toggleBtn.textContent = 'Start';
         toggleBtn.className = 'btn btn-primary btn-lg';
-        cyclesCompleted = 0;
-        updateCycleCount();
         updateDisplay();
         updateStatus();
+        updateCycleCount();
     }
 
     function openSettings() {
