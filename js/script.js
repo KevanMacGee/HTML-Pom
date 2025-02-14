@@ -45,7 +45,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function updateCycleCount() {
-        cycleDisplay.textContent = `Cycles completed: ${cyclesCompleted}`;
+        cycleDisplay.textContent = `Pomodoros completed: ${cyclesCompleted}`;
     }
 
     function toggleTimer() {
