@@ -100,7 +100,6 @@ body {
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
 }
 
-/* Modal header styles */
 .modal-header {
     background: linear-gradient(to bottom, #1a73e8, #1557b0);
     color: #ffffff;
@@ -109,7 +108,7 @@ body {
     font-weight: bold;
     border-top-left-radius: 15px;
     border-top-right-radius: 15px;
-    border-bottom: none; /* This removes the thin line */
+    border-bottom: 1px solid #373b3e; /* Updated */
 }
 
 /* Modal title should match timer title */
@@ -121,7 +120,7 @@ body {
 
 /* Close button (X) should be white */
 .btn-close {
-    filter: invert(1);
+    filter: invert(1) grayscale(100%) brightness(200%); /* Updated */
 }
 
 /* Modal body styling */
@@ -134,7 +133,43 @@ body {
 /* Modal footer is now completely black */
 .modal-footer {
     background-color: #212529;  /* Match the timer's dark background */
-    border-top: none;
+    border-top: 1px solid #373b3e; /* Updated */
+    color: #f8f9fa;
+}
+
+/* Dark theme for modal inputs */
+.form-control {
+    background-color: #343a40;
+    border-color: #495057;
+    color: #f8f9fa;
+}
+
+.form-control:focus {
+    background-color: #343a40;
+    border-color: #0d6efd;
+    color: #f8f9fa;
+    box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+}
+
+/* Modal input styling */
+.duration-inputs {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 1rem 0;
+}
+
+.duration-input-group {
+    flex: 1;
+    text-align: center;
+}
+
+.duration-input-group .form-control {
+    width: 80px;
+    margin: 0 auto;
+    text-align: center;
+    background-color: #343a40;
+    border-color: #495057;
     color: #f8f9fa;
 }
 
