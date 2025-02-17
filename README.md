@@ -1,4 +1,5 @@
 Version 0.2
+
 ![Ver 0.2](https://raw.githubusercontent.com/KevanMacGee/HTML-Pom/refs/heads/main/screenshots/ScreenshotVer0_2a.png)
 * Added rudimentary settings.
   - Need to add ability to pick number of cycles
