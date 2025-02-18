@@ -27,6 +27,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Add sound file constants
     const workSound = new Audio('sounds/work-start.mp3');
     const breakSound = new Audio('sounds/break-start.mp3');
+    const longBreakSound = new Audio('sounds/long-break-start.mp3');
 
     function updateDisplay() {
         const minutes = Math.floor(timeLeft / 60);
@@ -70,17 +71,17 @@ document.addEventListener('DOMContentLoaded', () => {
                         isWorkTime = false;
                         cyclesCompleted++;
                         updateCycleCount();
-                        checkCycleTarget();
                         
                         // Check if we should trigger a long break
                         if (cyclesCompleted % CYCLES_BEFORE_LONG_BREAK === 0) {
                             isLongBreak = true;
                             timeLeft = LONG_BREAK_TIME;
+                            longBreakSound.play();
                         } else {
                             isLongBreak = false;
                             timeLeft = BREAK_TIME;
+                            breakSound.play();
                         }
-                        breakSound.play();
                     } else {
                         isWorkTime = true;
                         isLongBreak = false;
