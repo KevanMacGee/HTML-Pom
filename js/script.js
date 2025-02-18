@@ -12,6 +12,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const cycleTargetInput = document.getElementById('cycleTarget');
     let cyclesCompleted = 0;
     let targetCycles = 4;
+    let isWorkComplete = false;  // Add this flag to track work completion
 
     // Changed from 45 and 15 minutes to 15 seconds each
     let WORK_TIME = 15;  // 15 seconds
@@ -69,11 +70,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (timeLeft < 0) {
                     if (isWorkTime) {
                         isWorkTime = false;
-                        cyclesCompleted++;
-                        updateCycleCount();
+                        isWorkComplete = true;  // Mark work as complete
                         
                         // Check if we should trigger a long break
-                        if (cyclesCompleted % CYCLES_BEFORE_LONG_BREAK === 0) {
+                        if ((cyclesCompleted + 1) % CYCLES_BEFORE_LONG_BREAK === 0) {
                             isLongBreak = true;
                             timeLeft = LONG_BREAK_TIME;
                             longBreakSound.play();
@@ -83,7 +83,13 @@ document.addEventListener('DOMContentLoaded', () => {
                             breakSound.play();
                         }
                     } else {
+                        if (isWorkComplete) {  // Only increment if work was completed
+                            cyclesCompleted++;
+                            updateCycleCount();
+                            checkCycleTarget();
+                        }
                         isWorkTime = true;
+                        isWorkComplete = false;  // Reset work completion flag
                         isLongBreak = false;
                         timeLeft = WORK_TIME;
                         workSound.play();
@@ -104,6 +110,7 @@ document.addEventListener('DOMContentLoaded', () => {
         isRunning = false;
         isWorkTime = true;
         isLongBreak = false;
+        isWorkComplete = false;  // Reset work completion flag
         cyclesCompleted = 0;
         timeLeft = WORK_TIME;
         toggleBtn.textContent = 'Start';
