@@ -152,9 +152,10 @@ body {
 }
 
 /* Settings Modal Layout */
+/* Update grid template for 4 items */
 .duration-inputs {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(4, 1fr);
     gap: 1.5rem;
     padding: 1.5rem;
     align-items: stretch;
@@ -189,6 +190,12 @@ body {
     border-color: #495057;
     color: #f8f9fa;
     margin-top: auto;
+}
+
+/* Optional: Add specific styling for the cycle target input */
+#cycleTarget {
+    font-weight: bold;
+    color: #ffc107; /* Make the target number stand out */
 }
 
 .timer-display {

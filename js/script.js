@@ -9,7 +9,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const breakDurationInput = document.getElementById('breakDuration');
     const longBreakDurationInput = document.getElementById('longBreakDuration');
     const cycleDisplay = document.getElementById('cycleCount');
+    const cycleTargetInput = document.getElementById('cycleTarget');
     let cyclesCompleted = 0;
+    let targetCycles = 4;
 
     // Changed from 45 and 15 minutes to 15 seconds each
     let WORK_TIME = 15;  // 15 seconds
@@ -45,7 +47,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function updateCycleCount() {
-        cycleDisplay.textContent = `Pomodoros completed: ${cyclesCompleted}`;
+        cycleDisplay.textContent = `Pomodoros completed: ${cyclesCompleted}${targetCycles ? ` / ${targetCycles}` : ''}`;
     }
 
     function toggleTimer() {
@@ -68,6 +70,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         isWorkTime = false;
                         cyclesCompleted++;
                         updateCycleCount();
+                        checkCycleTarget();
                         
                         // Check if we should trigger a long break
                         if (cyclesCompleted % CYCLES_BEFORE_LONG_BREAK === 0) {
@@ -113,6 +116,7 @@ document.addEventListener('DOMContentLoaded', () => {
         workDurationInput.value = WORK_TIME / 60;
         breakDurationInput.value = BREAK_TIME / 60;
         longBreakDurationInput.value = LONG_BREAK_TIME / 60;
+        cycleTargetInput.value = targetCycles;
         new bootstrap.Modal(document.getElementById('settingsModal')).show();
     }
 
@@ -132,9 +136,23 @@ document.addEventListener('DOMContentLoaded', () => {
         BREAK_TIME = Math.round(breakMinutes * 60);
         LONG_BREAK_TIME = Math.round(longBreakMinutes * 60);
 
+        targetCycles = parseInt(cycleTargetInput.value) || 0; // 0 means unlimited
+
         // Reset timer with new values
         resetTimer();
         bootstrap.Modal.getInstance(document.getElementById('settingsModal')).hide();
+        updateCycleCount();
+    }
+
+    // Optional: Add check for target completion
+    function checkCycleTarget() {
+        if (targetCycles && cyclesCompleted >= targetCycles) {
+            clearInterval(timer);
+            isRunning = false;
+            toggleBtn.textContent = 'Start';
+            toggleBtn.className = 'btn btn-primary btn-lg';
+            // Optional: Play a completion sound or show a notification
+        }
     }
 
     settingsBtn.addEventListener('click', openSettings);
