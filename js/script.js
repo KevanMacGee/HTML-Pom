@@ -32,6 +32,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     let lastTime = 0;
     let elapsed = 0;
+    let lastRealTime = null;
 
     function updateDisplay() {
         const minutes = Math.floor(timeLeft / 60);
@@ -58,61 +59,92 @@ document.addEventListener('DOMContentLoaded', () => {
     function updateTimer(currentTime) {
         if (!isRunning) return;
 
-        if (!lastTime) {
+        // Handle tab becoming active again
+        if (lastRealTime === null) {
+            lastRealTime = Date.now();
             lastTime = currentTime;
+            requestAnimationFrame(updateTimer);
+            return;
         }
 
-        elapsed += currentTime - lastTime;
-        lastTime = currentTime;
+        // Calculate real elapsed time
+        const realNow = Date.now();
+        const realElapsed = realNow - lastRealTime;
+        lastRealTime = realNow;
 
-        // Check if a second has passed (1000ms)
-        if (elapsed >= 1000) {
-            timeLeft--;
-            elapsed = elapsed % 1000; // Keep remainder for accurate timing
-
-            if (timeLeft < 0) {
-                if (isWorkTime) {
-                    isWorkTime = false;
-                    isWorkComplete = true;
-                    
-                    if ((cyclesCompleted + 1) % CYCLES_BEFORE_LONG_BREAK === 0) {
-                        isLongBreak = true;
-                        timeLeft = LONG_BREAK_TIME;
-                        longBreakSound.play();
-                    } else {
-                        isLongBreak = false;
-                        timeLeft = BREAK_TIME;
-                        breakSound.play();
-                    }
-                } else {
-                    if (isWorkComplete) {
-                        cyclesCompleted++;
-                        updateCycleCount();
-                        checkCycleTarget();
-                    }
-                    isWorkTime = true;
-                    isWorkComplete = false;
-                    isLongBreak = false;
-                    timeLeft = WORK_TIME;
-                    workSound.play();
-                }
-                updateStatus();
+        // If more than 1 second has passed (tab was inactive)
+        if (realElapsed > 1000) {
+            const secondsToSubtract = Math.floor(realElapsed / 1000);
+            timeLeft = Math.max(0, timeLeft - secondsToSubtract);
+            elapsed = realElapsed % 1000;
+            
+            // Check if timer should have ended during inactive period
+            if (timeLeft === 0) {
+                handleTimerCompletion();
             }
-            updateDisplay();
+        } else {
+            // Normal active tab behavior
+            if (!lastTime) {
+                lastTime = currentTime;
+            }
+
+            elapsed += currentTime - lastTime;
+            lastTime = currentTime;
+
+            if (elapsed >= 1000) {
+                timeLeft--;
+                elapsed = elapsed % 1000;
+
+                if (timeLeft < 0) {
+                    handleTimerCompletion();
+                }
+            }
         }
 
+        updateDisplay();
         requestAnimationFrame(updateTimer);
+    }
+
+    function handleTimerCompletion() {
+        if (isWorkTime) {
+            isWorkTime = false;
+            isWorkComplete = true;
+            
+            if ((cyclesCompleted + 1) % CYCLES_BEFORE_LONG_BREAK === 0) {
+                isLongBreak = true;
+                timeLeft = LONG_BREAK_TIME;
+                longBreakSound.play();
+            } else {
+                isLongBreak = false;
+                timeLeft = BREAK_TIME;
+                breakSound.play();
+            }
+        } else {
+            if (isWorkComplete) {
+                cyclesCompleted++;
+                updateCycleCount();
+                checkCycleTarget();
+            }
+            isWorkTime = true;
+            isWorkComplete = false;
+            isLongBreak = false;
+            timeLeft = WORK_TIME;
+            workSound.play();
+        }
+        updateStatus();
     }
 
     function toggleTimer() {
         if (isRunning) {
             isRunning = false;
             lastTime = 0;
+            lastRealTime = null;
             elapsed = 0;
             toggleBtn.textContent = 'Start';
             toggleBtn.className = 'btn btn-primary btn-lg';
         } else {
             isRunning = true;
+            lastRealTime = Date.now();
             if (isWorkTime) {
                 workSound.play();
             } else {
