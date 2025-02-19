@@ -30,6 +30,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const breakSound = new Audio('sounds/break-start.mp3');
     const longBreakSound = new Audio('sounds/long-break-start.mp3');
 
+    let lastTime = 0;
+    let elapsed = 0;
+
     function updateDisplay() {
         const minutes = Math.floor(timeLeft / 60);
         const seconds = timeLeft % 60;
@@ -52,62 +55,80 @@ document.addEventListener('DOMContentLoaded', () => {
         cycleDisplay.textContent = `Pomodoros completed: ${cyclesCompleted}${targetCycles ? ` / ${targetCycles}` : ''}`;
     }
 
+    function updateTimer(currentTime) {
+        if (!isRunning) return;
+
+        if (!lastTime) {
+            lastTime = currentTime;
+        }
+
+        elapsed += currentTime - lastTime;
+        lastTime = currentTime;
+
+        // Check if a second has passed (1000ms)
+        if (elapsed >= 1000) {
+            timeLeft--;
+            elapsed = elapsed % 1000; // Keep remainder for accurate timing
+
+            if (timeLeft < 0) {
+                if (isWorkTime) {
+                    isWorkTime = false;
+                    isWorkComplete = true;
+                    
+                    if ((cyclesCompleted + 1) % CYCLES_BEFORE_LONG_BREAK === 0) {
+                        isLongBreak = true;
+                        timeLeft = LONG_BREAK_TIME;
+                        longBreakSound.play();
+                    } else {
+                        isLongBreak = false;
+                        timeLeft = BREAK_TIME;
+                        breakSound.play();
+                    }
+                } else {
+                    if (isWorkComplete) {
+                        cyclesCompleted++;
+                        updateCycleCount();
+                        checkCycleTarget();
+                    }
+                    isWorkTime = true;
+                    isWorkComplete = false;
+                    isLongBreak = false;
+                    timeLeft = WORK_TIME;
+                    workSound.play();
+                }
+                updateStatus();
+            }
+            updateDisplay();
+        }
+
+        requestAnimationFrame(updateTimer);
+    }
+
     function toggleTimer() {
         if (isRunning) {
-            clearInterval(timer);
+            isRunning = false;
+            lastTime = 0;
+            elapsed = 0;
             toggleBtn.textContent = 'Start';
             toggleBtn.className = 'btn btn-primary btn-lg';
         } else {
-            // Play sound when timer starts based on current mode
+            isRunning = true;
             if (isWorkTime) {
                 workSound.play();
             } else {
                 breakSound.play();
             }
-
-            timer = setInterval(() => {
-                timeLeft--;
-                if (timeLeft < 0) {
-                    if (isWorkTime) {
-                        isWorkTime = false;
-                        isWorkComplete = true;  // Mark work as complete
-                        
-                        // Check if we should trigger a long break
-                        if ((cyclesCompleted + 1) % CYCLES_BEFORE_LONG_BREAK === 0) {
-                            isLongBreak = true;
-                            timeLeft = LONG_BREAK_TIME;
-                            longBreakSound.play();
-                        } else {
-                            isLongBreak = false;
-                            timeLeft = BREAK_TIME;
-                            breakSound.play();
-                        }
-                    } else {
-                        if (isWorkComplete) {  // Only increment if work was completed
-                            cyclesCompleted++;
-                            updateCycleCount();
-                            checkCycleTarget();
-                        }
-                        isWorkTime = true;
-                        isWorkComplete = false;  // Reset work completion flag
-                        isLongBreak = false;
-                        timeLeft = WORK_TIME;
-                        workSound.play();
-                    }
-                    updateStatus();
-                }
-                updateDisplay();
-            }, 1000);
+            requestAnimationFrame(updateTimer);
             toggleBtn.textContent = 'Pause';
             toggleBtn.className = 'btn btn-warning btn-lg';
         }
-        isRunning = !isRunning;
         updateStatus();
     }
 
     function resetTimer() {
-        clearInterval(timer);
         isRunning = false;
+        lastTime = 0;
+        elapsed = 0;
         isWorkTime = true;
         isLongBreak = false;
         isWorkComplete = false;  // Reset work completion flag
