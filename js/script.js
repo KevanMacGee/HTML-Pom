@@ -23,12 +23,20 @@ document.addEventListener('DOMContentLoaded', () => {
     let isRunning = false;
     let isWorkTime = true;
     let isLongBreak = false;
-    let timer = null;
 
     // Add sound file constants
     const workSound = new Audio('sounds/work-start.mp3');
     const breakSound = new Audio('sounds/break-start.mp3');
     const longBreakSound = new Audio('sounds/long-break-start.mp3');
+
+    // Add these constants at the top with other constants
+    const STORAGE_KEYS = {
+        END_TIME: 'pomodoroEndTime',
+        CURRENT_MODE: 'pomodoroCurrentMode',
+        CYCLES: 'pomodoroCycles',
+        IS_LONG_BREAK: 'pomodoroIsLongBreak',
+        TARGET_CYCLES: 'pomodoroTargetCycles'  // Add this for consistency
+    };
 
     let lastTime = 0;
     let elapsed = 0;
@@ -134,8 +142,15 @@ document.addEventListener('DOMContentLoaded', () => {
         updateStatus();
     }
 
+    // Modify the toggleTimer function
     function toggleTimer() {
         if (isRunning) {
+            // Clear storage when pausing
+            localStorage.removeItem(STORAGE_KEYS.END_TIME);
+            localStorage.removeItem(STORAGE_KEYS.CURRENT_MODE);
+            localStorage.removeItem(STORAGE_KEYS.CYCLES);
+            localStorage.removeItem(STORAGE_KEYS.IS_LONG_BREAK);
+            
             isRunning = false;
             lastTime = 0;
             lastRealTime = null;
@@ -145,6 +160,14 @@ document.addEventListener('DOMContentLoaded', () => {
         } else {
             isRunning = true;
             lastRealTime = Date.now();
+            
+            // Store end time and current state
+            const endTime = Date.now() + (timeLeft * 1000);
+            localStorage.setItem(STORAGE_KEYS.END_TIME, endTime.toString());
+            localStorage.setItem(STORAGE_KEYS.CURRENT_MODE, isWorkTime ? 'work' : 'break');
+            localStorage.setItem(STORAGE_KEYS.CYCLES, cyclesCompleted.toString());
+            localStorage.setItem(STORAGE_KEYS.IS_LONG_BREAK, isLongBreak.toString());
+            
             if (isWorkTime) {
                 workSound.play();
             } else {
@@ -199,7 +222,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
         targetCycles = parseInt(cycleTargetInput.value) || 0; // 0 means unlimited
 
-        // Reset timer with new values
+        // Store settings in localStorage
+        localStorage.setItem('workTime', WORK_TIME.toString());
+        localStorage.setItem('breakTime', BREAK_TIME.toString());
+        localStorage.setItem('longBreakTime', LONG_BREAK_TIME.toString());
+        localStorage.setItem(STORAGE_KEYS.TARGET_CYCLES, targetCycles.toString());
+
         resetTimer();
         bootstrap.Modal.getInstance(document.getElementById('settingsModal')).hide();
         updateCycleCount();
@@ -208,7 +236,6 @@ document.addEventListener('DOMContentLoaded', () => {
     // Optional: Add check for target completion
     function checkCycleTarget() {
         if (targetCycles && cyclesCompleted >= targetCycles) {
-            clearInterval(timer);
             isRunning = false;
             toggleBtn.textContent = 'Start';
             toggleBtn.className = 'btn btn-primary btn-lg';
@@ -216,11 +243,42 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
+    // Add this function to check stored time on page load
+    function checkStoredTimer() {
+        const storedEndTime = localStorage.getItem(STORAGE_KEYS.END_TIME);
+        if (storedEndTime) {
+            const endTime = parseInt(storedEndTime);
+            const now = Date.now();
+            if (endTime > now) {
+                // Restore timer state
+                timeLeft = Math.ceil((endTime - now) / 1000);
+                isWorkTime = localStorage.getItem(STORAGE_KEYS.CURRENT_MODE) === 'work';
+                cyclesCompleted = parseInt(localStorage.getItem(STORAGE_KEYS.CYCLES) || '0');
+                isLongBreak = localStorage.getItem(STORAGE_KEYS.IS_LONG_BREAK) === 'true';
+                
+                // Auto-start timer
+                toggleTimer();
+            } else {
+                // Clear expired timer
+                localStorage.clear();
+            }
+        }
+    }
+
+    function loadStoredSettings() {
+        WORK_TIME = parseInt(localStorage.getItem('workTime')) || 15;
+        BREAK_TIME = parseInt(localStorage.getItem('breakTime')) || 15;
+        LONG_BREAK_TIME = parseInt(localStorage.getItem('longBreakTime')) || 900;
+        targetCycles = parseInt(localStorage.getItem(STORAGE_KEYS.TARGET_CYCLES)) || 4;
+    }
+
     settingsBtn.addEventListener('click', openSettings);
     saveSettingsBtn.addEventListener('click', saveSettings);
     toggleBtn.addEventListener('click', toggleTimer);
     resetBtn.addEventListener('click', resetTimer);
 
+    loadStoredSettings();
     updateDisplay();
     updateCycleCount();
+    checkStoredTimer();
 });
