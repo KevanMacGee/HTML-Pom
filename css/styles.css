@@ -215,6 +215,14 @@ body {
     color: #f8f9fa;
 }
 
+.duration-section-title {
+    grid-column: 1 / -1;
+    text-align: center;
+    margin-bottom: 1rem;
+    color: #f8f9fa;
+    font-weight: 500;
+}
+
 .timer-display {
     font-size: 6rem;
     font-weight: bold;
