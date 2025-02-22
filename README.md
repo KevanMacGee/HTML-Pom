@@ -24,7 +24,7 @@ I'm having trouble with the design through AI. I used to tweaking the CSS by han
 **To do:**
 
 ~~* No options yet.~~
-* Alarm sounds are stlll rudimentary.
+* Alarm sounds are still rudimentary.
 * Modal styling is basic, not attractive
 * Needs mobile fine tuning.
 * Interface design not final.
