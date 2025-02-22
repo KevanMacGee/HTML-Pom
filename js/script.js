@@ -25,9 +25,9 @@ document.addEventListener('DOMContentLoaded', () => {
     let isLongBreak = false;
 
     // Add sound file constants
-    const workSound = new Audio('sounds/work-start.mp3');
-    const breakSound = new Audio('sounds/break-start.mp3');
-    const longBreakSound = new Audio('sounds/long-break-start.mp3');
+    const workSound = createAudioElement('sounds/work-start.mp3', 'sounds/work-start.ogg');
+    const breakSound = createAudioElement('sounds/break-start.mp3', 'sounds/break-start.ogg');
+    const longBreakSound = createAudioElement('sounds/long-break-start.mp3', 'sounds/long-break-start.ogg');
 
     // Add these constants at the top with other constants
     const STORAGE_KEYS = {
@@ -121,11 +121,11 @@ document.addEventListener('DOMContentLoaded', () => {
             if ((cyclesCompleted + 1) % CYCLES_BEFORE_LONG_BREAK === 0) {
                 isLongBreak = true;
                 timeLeft = LONG_BREAK_TIME;
-                longBreakSound.play();
+                playSound(longBreakSound);
             } else {
                 isLongBreak = false;
                 timeLeft = BREAK_TIME;
-                breakSound.play();
+                playSound(breakSound);
             }
         } else {
             if (isWorkComplete) {
@@ -137,7 +137,7 @@ document.addEventListener('DOMContentLoaded', () => {
             isWorkComplete = false;
             isLongBreak = false;
             timeLeft = WORK_TIME;
-            workSound.play();
+            playSound(workSound);
         }
         updateStatus();
     }
@@ -169,9 +169,9 @@ document.addEventListener('DOMContentLoaded', () => {
             localStorage.setItem(STORAGE_KEYS.IS_LONG_BREAK, isLongBreak.toString());
             
             if (isWorkTime) {
-                workSound.play();
+                playSound(workSound);
             } else {
-                breakSound.play();
+                playSound(breakSound);
             }
             requestAnimationFrame(updateTimer);
             toggleBtn.textContent = 'Pause';
@@ -302,3 +302,29 @@ document.addEventListener('DOMContentLoaded', () => {
     updateCycleCount();
     checkStoredTimer();
 });
+
+// Add this helper function for creating audio elements with fallbacks
+function createAudioElement(mp3Path, oggPath) {
+    const audio = new Audio();
+    const mp3Source = document.createElement('source');
+    const oggSource = document.createElement('source');
+    
+    mp3Source.src = mp3Path;
+    mp3Source.type = 'audio/mpeg';
+    oggSource.src = oggPath;
+    oggSource.type = 'audio/ogg';
+    
+    audio.appendChild(mp3Source);
+    audio.appendChild(oggSource);
+    
+    return audio;
+}
+
+// Update the playSound helper function
+function playSound(audioElement) {
+    if (audioElement) {
+        audioElement.play().catch(error => {
+            console.warn('Audio playback failed:', error);
+        });
+    }
+}
