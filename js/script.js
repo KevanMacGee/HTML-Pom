@@ -266,10 +266,30 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function loadStoredSettings() {
-        WORK_TIME = parseInt(localStorage.getItem('workTime')) || 15;
-        BREAK_TIME = parseInt(localStorage.getItem('breakTime')) || 15;
-        LONG_BREAK_TIME = parseInt(localStorage.getItem('longBreakTime')) || 900;
-        targetCycles = parseInt(localStorage.getItem(STORAGE_KEYS.TARGET_CYCLES)) || 4;
+        // Helper function to safely parse numbers with validation
+        const safeParseInt = (value, defaultValue) => {
+            const parsed = parseInt(value);
+            return (!isNaN(parsed) && parsed > 0) ? parsed : defaultValue;
+        };
+
+        WORK_TIME = safeParseInt(localStorage.getItem('workTime'), 15);
+        BREAK_TIME = safeParseInt(localStorage.getItem('breakTime'), 15);
+        LONG_BREAK_TIME = safeParseInt(localStorage.getItem('longBreakTime'), 900);
+        targetCycles = safeParseInt(localStorage.getItem(STORAGE_KEYS.TARGET_CYCLES), 4);
+
+        // Clean up invalid values if found
+        if (WORK_TIME !== parseInt(localStorage.getItem('workTime'))) {
+            localStorage.setItem('workTime', WORK_TIME.toString());
+        }
+        if (BREAK_TIME !== parseInt(localStorage.getItem('breakTime'))) {
+            localStorage.setItem('breakTime', BREAK_TIME.toString());
+        }
+        if (LONG_BREAK_TIME !== parseInt(localStorage.getItem('longBreakTime'))) {
+            localStorage.setItem('longBreakTime', LONG_BREAK_TIME.toString());
+        }
+        if (targetCycles !== parseInt(localStorage.getItem(STORAGE_KEYS.TARGET_CYCLES))) {
+            localStorage.setItem(STORAGE_KEYS.TARGET_CYCLES, targetCycles.toString());
+        }
     }
 
     settingsBtn.addEventListener('click', openSettings);
