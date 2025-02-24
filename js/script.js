@@ -20,6 +20,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let cyclesCompleted = 0;
     let targetCycles = 4;
     let isWorkComplete = false;  // Add this flag to track work completion
+    let timerInterval = null;  // Add this line
 
     // Changed from 45 and 15 minutes to 15 seconds each
     let WORK_TIME = 15;  // 15 seconds
@@ -42,11 +43,9 @@ document.addEventListener('DOMContentLoaded', () => {
         CURRENT_MODE: 'pomodoroCurrentMode',
         CYCLES: 'pomodoroCycles',
         IS_LONG_BREAK: 'pomodoroIsLongBreak',
-        TARGET_CYCLES: 'pomodoroTargetCycles'  // Add this for consistency
+        TARGET_CYCLES: 'pomodoroTargetCycles'
     };
 
-    let lastTime = 0;
-    let elapsed = 0;
     let lastRealTime = null;
     let lastVisibleTime = Date.now();
     let wasRunning = false;
@@ -73,15 +72,29 @@ document.addEventListener('DOMContentLoaded', () => {
         cycleDisplay.textContent = `Pomodoros completed: ${cyclesCompleted}${targetCycles ? ` / ${targetCycles}` : ''}`;
     }
 
+    // Replace the updateTimer function with this improved version
     function updateTimer() {
         if (!isRunning) return;
 
-        if (timeLeft > 0) {
-            timeLeft--;
+        const currentTime = Date.now();
+        if (lastRealTime === null) {
+            lastRealTime = currentTime;
+            return;
+        }
+
+        // Calculate actual elapsed time
+        const realElapsed = Math.floor((currentTime - lastRealTime) / 1000);
+        lastRealTime = currentTime;
+
+        if (realElapsed > 0) {
+            // Update timeLeft considering actual elapsed time
+            timeLeft = Math.max(0, timeLeft - realElapsed);
             updateDisplay();
-            
+
+            // Handle timer completion
             if (timeLeft === 0) {
                 handleTimerCompletion();
+                lastRealTime = null; // Reset for next cycle
             }
         }
     }
@@ -95,11 +108,11 @@ document.addEventListener('DOMContentLoaded', () => {
             if ((cyclesCompleted + 1) % CYCLES_BEFORE_LONG_BREAK === 0) {
                 isLongBreak = true;
                 timeLeft = LONG_BREAK_TIME;
-                playSound(longBreakSound);
+                playSound(longBreakSound); // Already using playSound helper ✓
             } else {
                 isLongBreak = false;
                 timeLeft = BREAK_TIME;
-                playSound(breakSound);
+                playSound(breakSound); // Already using playSound helper ✓
             }
         } else {
             if (isWorkComplete) {
@@ -109,45 +122,42 @@ document.addEventListener('DOMContentLoaded', () => {
             }
             isWorkTime = true;
             isWorkComplete = false;
-            isLongBreak = false;
             timeLeft = WORK_TIME;
-            playSound(workSound);
+            playSound(workSound); // Already using playSound helper ✓
         }
         updateStatus();
     }
 
-    // Modify the toggleTimer function
+    // Update toggleTimer to initialize lastRealTime
     function toggleTimer() {
         if (isRunning) {
-            clearInterval(timerInterval);
-            localStorage.removeItem(STORAGE_KEYS.END_TIME);
-            localStorage.removeItem(STORAGE_KEYS.CURRENT_MODE);
-            localStorage.removeItem(STORAGE_KEYS.CYCLES);
-            localStorage.removeItem(STORAGE_KEYS.IS_LONG_BREAK);
-            
+            if (timerInterval) {
+                clearInterval(timerInterval);
+                timerInterval = null;
+            }
             isRunning = false;
-            lastTime = 0;
             lastRealTime = null;
-            elapsed = 0;
+            safeRemoveItem(STORAGE_KEYS.END_TIME);
             toggleBtn.textContent = 'Start';
             toggleBtn.className = 'btn btn-primary btn-lg';
         } else {
             isRunning = true;
-            timerInterval = setInterval(updateTimer, 1000);
             lastRealTime = Date.now();
+            if (timerInterval) {
+                clearInterval(timerInterval);
+            }
+            timerInterval = setInterval(updateTimer, 1000);
+            saveTimerState();
             
-            // Store end time and current state
-            const endTime = Date.now() + (timeLeft * 1000);
-            localStorage.setItem(STORAGE_KEYS.END_TIME, endTime.toString());
-            localStorage.setItem(STORAGE_KEYS.CURRENT_MODE, isWorkTime ? 'work' : 'break');
-            localStorage.setItem(STORAGE_KEYS.CYCLES, cyclesCompleted.toString());
-            localStorage.setItem(STORAGE_KEYS.IS_LONG_BREAK, isLongBreak.toString());
-            
+            // Play appropriate sound
             if (isWorkTime) {
                 playSound(workSound);
+            } else if (isLongBreak) {
+                playSound(longBreakSound);
             } else {
                 playSound(breakSound);
             }
+            
             toggleBtn.textContent = 'Pause';
             toggleBtn.className = 'btn btn-warning btn-lg';
         }
@@ -155,17 +165,29 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function resetTimer() {
+        // Clear interval and reset running state
         clearInterval(timerInterval);
         isRunning = false;
-        lastTime = 0;
-        elapsed = 0;
+        lastRealTime = null;
+
+        // Reset timer state
         isWorkTime = true;
+        isWorkComplete = false;
         isLongBreak = false;
-        isWorkComplete = false;  // Reset work completion flag
-        cyclesCompleted = 0;
         timeLeft = WORK_TIME;
+        cyclesCompleted = 0;
+
+        // Clean up all timer-related localStorage items
+        safeRemoveItem(STORAGE_KEYS.END_TIME);
+        safeRemoveItem(STORAGE_KEYS.CURRENT_MODE);
+        safeRemoveItem(STORAGE_KEYS.CYCLES);
+        safeRemoveItem(STORAGE_KEYS.IS_LONG_BREAK);
+
+        // Reset UI elements
         toggleBtn.textContent = 'Start';
         toggleBtn.className = 'btn btn-primary btn-lg';
+        
+        // Update displays
         updateDisplay();
         updateStatus();
         updateCycleCount();
@@ -180,32 +202,31 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function saveSettings() {
-        // Convert input values to numbers and validate (minimum 0.25 minutes = 15 seconds)
-        const workMinutes = Math.max(0.25, parseFloat(workDurationInput.value) || 0.25);
-        const breakMinutes = Math.max(0.25, parseFloat(breakDurationInput.value) || 0.25);
-        const longBreakMinutes = Math.max(0.25, parseFloat(longBreakDurationInput.value) || 0.25);
+        try {
+            const workDuration = parseFloat(workDurationInput.value);
+            const breakDuration = parseFloat(breakDurationInput.value);
+            const longBreakDuration = parseFloat(longBreakDurationInput.value);
+            const cycles = parseInt(cycleTargetInput.value, 10);
 
-        // Update the input values to show validated numbers
-        workDurationInput.value = workMinutes;
-        breakDurationInput.value = breakMinutes;
-        longBreakDurationInput.value = longBreakMinutes;
-
-        // Convert minutes to seconds and save
-        WORK_TIME = Math.round(workMinutes * 60);
-        BREAK_TIME = Math.round(breakMinutes * 60);
-        LONG_BREAK_TIME = Math.round(longBreakMinutes * 60);
-
-        targetCycles = parseInt(cycleTargetInput.value) || 0; // 0 means unlimited
-
-        // Store settings in localStorage
-        localStorage.setItem('workTime', WORK_TIME.toString());
-        localStorage.setItem('breakTime', BREAK_TIME.toString());
-        localStorage.setItem('longBreakTime', LONG_BREAK_TIME.toString());
-        localStorage.setItem(STORAGE_KEYS.TARGET_CYCLES, targetCycles.toString());
-
-        resetTimer();
-        bootstrap.Modal.getInstance(document.getElementById('settingsModal')).hide();
-        updateCycleCount();
+            if (workDuration && breakDuration && longBreakDuration && cycles) {
+                safeSetItem('workDuration', workDuration.toString());
+                safeSetItem('breakDuration', breakDuration.toString());
+                safeSetItem('longBreakDuration', longBreakDuration.toString());
+                safeSetItem('targetCycles', cycles.toString());
+                
+                WORK_TIME = Math.floor(workDuration * 60);
+                BREAK_TIME = Math.floor(breakDuration * 60);
+                LONG_BREAK_TIME = Math.floor(longBreakDuration * 60);
+                targetCycles = cycles;
+                
+                if (!isRunning) {
+                    timeLeft = WORK_TIME;
+                    updateDisplay();
+                }
+            }
+        } catch (error) {
+            console.warn('Error saving settings:', error);
+        }
     }
 
     // Optional: Add check for target completion
@@ -220,23 +241,42 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Add this function to check stored time on page load
     function checkStoredTimer() {
-        const storedEndTime = localStorage.getItem(STORAGE_KEYS.END_TIME);
-        if (storedEndTime) {
-            const endTime = parseInt(storedEndTime);
+        try {
+            const storedEndTime = safeGetItem(STORAGE_KEYS.END_TIME);
+            if (!storedEndTime) return false;
+
             const now = Date.now();
-            if (endTime > now) {
-                // Restore timer state
-                timeLeft = Math.ceil((endTime - now) / 1000);
-                isWorkTime = localStorage.getItem(STORAGE_KEYS.CURRENT_MODE) === 'work';
-                cyclesCompleted = parseInt(localStorage.getItem(STORAGE_KEYS.CYCLES) || '0');
-                isLongBreak = localStorage.getItem(STORAGE_KEYS.IS_LONG_BREAK) === 'true';
-                
-                // Auto-start timer
-                toggleTimer();
-            } else {
-                // Clear expired timer
-                localStorage.clear();
+            const endTime = parseInt(storedEndTime, 10);
+
+            if (now >= endTime) {
+                // Selectively remove timer-related items only
+                safeRemoveItem(STORAGE_KEYS.END_TIME);
+                safeRemoveItem(STORAGE_KEYS.CURRENT_MODE);
+                return false;
             }
+
+            const remainingTime = Math.ceil((endTime - now) / 1000);
+            timeLeft = remainingTime;
+            
+            const storedMode = safeGetItem(STORAGE_KEYS.CURRENT_MODE);
+            if (storedMode) {
+                isWorkTime = storedMode === 'work';
+            }
+            
+            const storedCycles = safeGetItem(STORAGE_KEYS.CYCLES);
+            if (storedCycles) {
+                cyclesCompleted = parseInt(storedCycles, 10);
+            }
+            
+            const storedIsLongBreak = safeGetItem(STORAGE_KEYS.IS_LONG_BREAK);
+            if (storedIsLongBreak) {
+                isLongBreak = storedIsLongBreak === 'true';
+            }
+
+            return true;
+        } catch (error) {
+            console.warn('Error checking stored timer:', error);
+            return false;
         }
     }
 
@@ -277,42 +317,44 @@ document.addEventListener('DOMContentLoaded', () => {
     updateCycleCount();
     checkStoredTimer();
 
-    // Add visibility change handler
+    // Add visibility change handler that uses the same logic
     document.addEventListener('visibilitychange', () => {
+        if (!isRunning) return;
+
         if (document.hidden) {
-            // Tab becomes hidden
-            if (isRunning) {
+            // Store the time when tab becomes hidden
+            lastVisibleTime = Date.now();
+            if (timerInterval) {
                 clearInterval(timerInterval);
-                lastVisibleTime = Date.now();
+                timerInterval = null;  // Add this
             }
         } else {
-            // Tab becomes visible
+            // Calculate elapsed time and update timer state
+            const now = Date.now();
+            const elapsedSeconds = Math.floor((now - lastVisibleTime) / 1000);
+            
+            // Update timeLeft
+            timeLeft = Math.max(0, timeLeft - elapsedSeconds);
+            updateDisplay();
+
+            // Clear any existing interval just in case
+            if (timerInterval) {
+                clearInterval(timerInterval);
+            }
+
+            // If timer completed while hidden, handle it
+            if (timeLeft === 0) {
+                handleTimerCompletion();
+                lastRealTime = null;
+            }
+            
+            // Always restart the interval if we're still running
             if (isRunning) {
-                const now = Date.now();
-                const elapsedSeconds = Math.floor((now - lastVisibleTime) / 1000);
-                timeLeft = Math.max(0, timeLeft - elapsedSeconds);
-                
-                if (timeLeft === 0) {
-                    handleTimerComplete();
-                } else {
-                    timerInterval = setInterval(updateTimer, 1000);
-                    updateDisplay();
-                }
+                lastRealTime = now;
+                timerInterval = setInterval(updateTimer, 1000);
             }
         }
     });
-
-    function handleTimerComplete() {
-        isRunning = false;
-        if (isWorkTime) {
-            // Play sound even if tab is not active
-            workSound.audio.play().catch(err => console.log('Error playing sound:', err));
-            // ...rest of completion logic...
-        } else {
-            breakSound.audio.play().catch(err => console.log('Error playing sound:', err));
-            // ...rest of completion logic...
-        }
-    }
 });
 
 // Replace the createAudioElement function with this simpler version
@@ -346,5 +388,32 @@ function playSound(audio) {
                 console.warn('Audio playback failed:', error);
             });
         }
+    }
+}
+
+// Add these helper functions for localStorage management
+function safeSetItem(key, value) {
+    try {
+        localStorage.setItem(key, value);
+    } catch (error) {
+        console.warn(`Failed to save to localStorage: ${error.message}`);
+    }
+}
+
+function safeGetItem(key, defaultValue = null) {
+    try {
+        const item = localStorage.getItem(key);
+        return item !== null ? item : defaultValue;
+    } catch (error) {
+        console.warn(`Failed to read from localStorage: ${error.message}`);
+        return defaultValue;
+    }
+}
+
+function safeRemoveItem(key) {
+    try {
+        localStorage.removeItem(key);
+    } catch (error) {
+        console.warn(`Failed to remove from localStorage: ${error.message}`);
     }
 }
