@@ -1,4 +1,11 @@
 document.addEventListener('DOMContentLoaded', () => {
+    // Request audio permission through user interaction
+    document.addEventListener('click', function initAudio() {
+        const audio = new Audio();
+        audio.play().catch(() => {});
+        document.removeEventListener('click', initAudio);
+    }, { once: true });
+
     const timerDisplay = document.getElementById('timer');
     const statusDisplay = document.getElementById('status');
     const toggleBtn = document.getElementById('toggleBtn');
@@ -66,55 +73,20 @@ document.addEventListener('DOMContentLoaded', () => {
         cycleDisplay.textContent = `Pomodoros completed: ${cyclesCompleted}${targetCycles ? ` / ${targetCycles}` : ''}`;
     }
 
-    function updateTimer(currentTime) {
+    function updateTimer() {
         if (!isRunning) return;
 
-        // Handle tab becoming active again
-        if (lastRealTime === null) {
-            lastRealTime = Date.now();
-            lastTime = currentTime;
-            requestAnimationFrame(updateTimer);
-            return;
-        }
-
-        // Calculate real elapsed time
-        const realNow = Date.now();
-        const realElapsed = realNow - lastRealTime;
-        lastRealTime = realNow;
-
-        // If more than 1 second has passed (tab was inactive)
-        if (realElapsed > 1000) {
-            const secondsToSubtract = Math.floor(realElapsed / 1000);
-            timeLeft = Math.max(0, timeLeft - secondsToSubtract);
-            elapsed = realElapsed % 1000;
+        if (timeLeft > 0) {
+            timeLeft--;
+            updateDisplay();
             
-            // Check if timer should have ended during inactive period
             if (timeLeft === 0) {
                 handleTimerCompletion();
             }
-        } else {
-            // Normal active tab behavior
-            if (!lastTime) {
-                lastTime = currentTime;
-            }
-
-            elapsed += currentTime - lastTime;
-            lastTime = currentTime;
-
-            if (elapsed >= 1000) {
-                timeLeft--;
-                elapsed = elapsed % 1000;
-
-                if (timeLeft < 0) {
-                    handleTimerCompletion();
-                }
-            }
         }
-
-        updateDisplay();
-        requestAnimationFrame(updateTimer);
     }
 
+    // Update the handleTimerCompletion function to use the simpler audio
     function handleTimerCompletion() {
         if (isWorkTime) {
             isWorkTime = false;
@@ -147,7 +119,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Modify the toggleTimer function
     function toggleTimer() {
         if (isRunning) {
-            // Clear storage when pausing
+            clearInterval(timerInterval);
             localStorage.removeItem(STORAGE_KEYS.END_TIME);
             localStorage.removeItem(STORAGE_KEYS.CURRENT_MODE);
             localStorage.removeItem(STORAGE_KEYS.CYCLES);
@@ -161,6 +133,7 @@ document.addEventListener('DOMContentLoaded', () => {
             toggleBtn.className = 'btn btn-primary btn-lg';
         } else {
             isRunning = true;
+            timerInterval = setInterval(updateTimer, 1000);
             lastRealTime = Date.now();
             
             // Store end time and current state
@@ -175,7 +148,6 @@ document.addEventListener('DOMContentLoaded', () => {
             } else {
                 playSound(breakSound);
             }
-            requestAnimationFrame(updateTimer);
             toggleBtn.textContent = 'Pause';
             toggleBtn.className = 'btn btn-warning btn-lg';
         }
@@ -183,6 +155,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function resetTimer() {
+        clearInterval(timerInterval);
         isRunning = false;
         lastTime = 0;
         elapsed = 0;
@@ -309,21 +282,22 @@ document.addEventListener('DOMContentLoaded', () => {
         if (document.hidden) {
             // Tab becomes hidden
             if (isRunning) {
-                wasRunning = true;
+                clearInterval(timerInterval);
                 lastVisibleTime = Date.now();
             }
         } else {
             // Tab becomes visible
-            if (wasRunning) {
-                const elapsedSeconds = Math.floor((Date.now() - lastVisibleTime) / 1000);
+            if (isRunning) {
+                const now = Date.now();
+                const elapsedSeconds = Math.floor((now - lastVisibleTime) / 1000);
                 timeLeft = Math.max(0, timeLeft - elapsedSeconds);
                 
                 if (timeLeft === 0) {
                     handleTimerComplete();
                 } else {
+                    timerInterval = setInterval(updateTimer, 1000);
                     updateDisplay();
                 }
-                wasRunning = false;
             }
         }
     });
@@ -332,18 +306,20 @@ document.addEventListener('DOMContentLoaded', () => {
         isRunning = false;
         if (isWorkTime) {
             // Play sound even if tab is not active
-            workSound.play().catch(err => console.log('Error playing sound:', err));
+            workSound.audio.play().catch(err => console.log('Error playing sound:', err));
             // ...rest of completion logic...
         } else {
-            breakSound.play().catch(err => console.log('Error playing sound:', err));
+            breakSound.audio.play().catch(err => console.log('Error playing sound:', err));
             // ...rest of completion logic...
         }
     }
 });
 
-// Add this helper function for creating audio elements with fallbacks
+// Replace the createAudioElement function with this simpler version
 function createAudioElement(mp3Path, oggPath) {
     const audio = new Audio();
+    
+    // Add sources
     const mp3Source = document.createElement('source');
     const oggSource = document.createElement('source');
     
@@ -354,15 +330,21 @@ function createAudioElement(mp3Path, oggPath) {
     
     audio.appendChild(mp3Source);
     audio.appendChild(oggSource);
+    audio.load(); // Preload the audio
     
     return audio;
 }
 
-// Update the playSound helper function
-function playSound(audioElement) {
-    if (audioElement) {
-        audioElement.play().catch(error => {
-            console.warn('Audio playback failed:', error);
-        });
+// Replace the playSound function with this simpler version
+function playSound(audio) {
+    if (audio) {
+        audio.currentTime = 0;
+        const playPromise = audio.play();
+        
+        if (playPromise !== undefined) {
+            playPromise.catch(error => {
+                console.warn('Audio playback failed:', error);
+            });
+        }
     }
 }
