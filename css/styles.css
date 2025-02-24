@@ -182,13 +182,29 @@ body {
     align-items: center;
 }
 
-.duration-input-group .form-control {
+.duration-input-group .form-control,
+#cycleTarget {
     width: 80px;
     text-align: center;
     background-color: #343a40;
     border-color: #495057;
     color: #f8f9fa;
     margin-top: auto;
+    margin-left: auto;    /* Add this */
+    margin-right: auto;   /* Add this */
+    -moz-appearance: textfield; /* Remove spinner for Firefox */
+}
+
+/* Remove spinner buttons for Chrome/Safari/Edge */
+.duration-input-group .form-control::-webkit-outer-spin-button,
+.duration-input-group .form-control::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+/* Center the select dropdown text */
+#cycleTarget option {
+    text-align: center;
 }
 
 /* Add separator and styling for cycle target section */
