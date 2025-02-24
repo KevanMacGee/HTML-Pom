@@ -214,6 +214,10 @@ body {
     padding-top: 1.5rem;
     margin-top: 0.5rem;
     text-align: center;
+    display: flex;           /* Add this */
+    flex-direction: column;  /* Add this */
+    align-items: center;     /* Add this */
+    gap: 1rem;              /* Add this */
 }
 
 #cycleTarget {
@@ -223,6 +227,13 @@ body {
     border-color: #495057;
     color: #f8f9fa;
     text-align: center;
+    appearance: none;        /* Add this */
+    padding-right: 8px;     /* Add this */
+}
+
+/* Add this new style for the dropdown arrow */
+#cycleTarget::-ms-expand {
+    display: none;
 }
 
 /* Remove the previous cycle target specific styling */

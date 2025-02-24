@@ -41,6 +41,8 @@ document.addEventListener('DOMContentLoaded', () => {
     let lastTime = 0;
     let elapsed = 0;
     let lastRealTime = null;
+    let lastVisibleTime = Date.now();
+    let wasRunning = false;
 
     function updateDisplay() {
         const minutes = Math.floor(timeLeft / 60);
@@ -301,6 +303,42 @@ document.addEventListener('DOMContentLoaded', () => {
     updateDisplay();
     updateCycleCount();
     checkStoredTimer();
+
+    // Add visibility change handler
+    document.addEventListener('visibilitychange', () => {
+        if (document.hidden) {
+            // Tab becomes hidden
+            if (isRunning) {
+                wasRunning = true;
+                lastVisibleTime = Date.now();
+            }
+        } else {
+            // Tab becomes visible
+            if (wasRunning) {
+                const elapsedSeconds = Math.floor((Date.now() - lastVisibleTime) / 1000);
+                timeLeft = Math.max(0, timeLeft - elapsedSeconds);
+                
+                if (timeLeft === 0) {
+                    handleTimerComplete();
+                } else {
+                    updateDisplay();
+                }
+                wasRunning = false;
+            }
+        }
+    });
+
+    function handleTimerComplete() {
+        isRunning = false;
+        if (isWorkTime) {
+            // Play sound even if tab is not active
+            workSound.play().catch(err => console.log('Error playing sound:', err));
+            // ...rest of completion logic...
+        } else {
+            breakSound.play().catch(err => console.log('Error playing sound:', err));
+            // ...rest of completion logic...
+        }
+    }
 });
 
 // Add this helper function for creating audio elements with fallbacks
