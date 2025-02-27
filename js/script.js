@@ -46,7 +46,6 @@ document.addEventListener('DOMContentLoaded', () => {
         TARGET_CYCLES: 'pomodoroTargetCycles'
     };
 
-    let animationFrameId = null;
     let lastRealTime = null;
     let lastVisibleTime = Date.now();
     let wasRunning = false;
@@ -75,35 +74,29 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Replace the updateTimer function with this improved version
     function updateTimer() {
-        if (!isRunning) {
-            if (animationFrameId) {
-                cancelAnimationFrame(animationFrameId);
-                animationFrameId = null;
-            }
-            return;
-        }
+        if (!isRunning) return;
 
         const currentTime = Date.now();
         if (lastRealTime === null) {
             lastRealTime = currentTime;
+            return;
         }
 
         // Calculate actual elapsed time
         const realElapsed = Math.floor((currentTime - lastRealTime) / 1000);
-        
+        lastRealTime = currentTime;
+
         if (realElapsed > 0) {
-            lastRealTime = currentTime - (currentTime - lastRealTime) % 1000;
+            // Update timeLeft considering actual elapsed time
             timeLeft = Math.max(0, timeLeft - realElapsed);
             updateDisplay();
 
+            // Handle timer completion
             if (timeLeft === 0) {
                 handleTimerCompletion();
-                lastRealTime = null;
+                lastRealTime = null; // Reset for next cycle
             }
         }
-
-        // Schedule next update
-        animationFrameId = requestAnimationFrame(updateTimer);
     }
 
     // Update the handleTimerCompletion function to use the simpler audio
@@ -138,11 +131,11 @@ document.addEventListener('DOMContentLoaded', () => {
     // Update toggleTimer to initialize lastRealTime
     function toggleTimer() {
         if (isRunning) {
-            isRunning = false;
-            if (animationFrameId) {
-                cancelAnimationFrame(animationFrameId);
-                animationFrameId = null;
+            if (timerInterval) {
+                clearInterval(timerInterval);
+                timerInterval = null;
             }
+            isRunning = false;
             lastRealTime = null;
             safeRemoveItem(STORAGE_KEYS.END_TIME);
             toggleBtn.textContent = 'Start';
@@ -150,8 +143,11 @@ document.addEventListener('DOMContentLoaded', () => {
         } else {
             isRunning = true;
             lastRealTime = Date.now();
+            if (timerInterval) {
+                clearInterval(timerInterval);
+            }
+            timerInterval = setInterval(updateTimer, 1000);
             saveTimerState();
-            animationFrameId = requestAnimationFrame(updateTimer);
             
             // Play appropriate sound
             if (isWorkTime) {
@@ -169,10 +165,8 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function resetTimer() {
-        if (animationFrameId) {
-            cancelAnimationFrame(animationFrameId);
-            animationFrameId = null;
-        }
+        // Clear interval and reset running state
+        clearInterval(timerInterval);
         isRunning = false;
         lastRealTime = null;
 
@@ -330,9 +324,9 @@ document.addEventListener('DOMContentLoaded', () => {
         if (document.hidden) {
             // Store the time when tab becomes hidden
             lastVisibleTime = Date.now();
-            if (animationFrameId) {
-                cancelAnimationFrame(animationFrameId);
-                animationFrameId = null;  // Add this
+            if (timerInterval) {
+                clearInterval(timerInterval);
+                timerInterval = null;  // Add this
             }
         } else {
             // Calculate elapsed time and update timer state
@@ -344,8 +338,8 @@ document.addEventListener('DOMContentLoaded', () => {
             updateDisplay();
 
             // Clear any existing interval just in case
-            if (animationFrameId) {
-                cancelAnimationFrame(animationFrameId);
+            if (timerInterval) {
+                clearInterval(timerInterval);
             }
 
             // If timer completed while hidden, handle it
@@ -357,7 +351,7 @@ document.addEventListener('DOMContentLoaded', () => {
             // Always restart the interval if we're still running
             if (isRunning) {
                 lastRealTime = now;
-                animationFrameId = requestAnimationFrame(updateTimer);
+                timerInterval = setInterval(updateTimer, 1000);
             }
         }
     });
