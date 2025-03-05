@@ -2,7 +2,7 @@
 
 ![Ver 0.2](https://raw.githubusercontent.com/KevanMacGee/HTML-Pom/refs/heads/main/screenshots/ScreenshotVer0_3.png)
 
-I'm having trouble with the design through AI. I used to tweaking the CSS by hand but with I trying to do this all by AI. I'm not going to accept broken or confusing design, but I'm going to let some poor or unbalanced design slide for the next few versions. I will be concetrating on functionality, not form during that time.
+I'm having trouble with the design through AI. I am used to tweaking the CSS by hand but I started this to make something entirely with AI. It doesn't always get what I mean and I'm frequently encountering instances when it would be faster to just write the code myself. So I'm going to accept some "good enough" edits by AI for a while. I'll be concetrating on the functionality for the next few versions, even if it means the design is sub-par for a bit.
 
 * Replaced `setInterval` to avoid time drift.
 * Added the ability to remain accurate even if the browser goes inactive.
