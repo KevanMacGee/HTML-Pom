@@ -1,3 +1,5 @@
+This is a work in progress. I am building a pomodoro timer and only using AI, I'm not hand writing any of the code. (Also, I seem to be working on it for 15 monutes at a time, once or twice a week.)
+
 **Version 0.3**
 
 ![Ver 0.2](https://raw.githubusercontent.com/KevanMacGee/HTML-Pom/refs/heads/main/screenshots/ScreenshotVer0_3.png)
@@ -6,12 +8,13 @@ I'm having trouble with the design through AI. I am used to tweaking the CSS by 
 
 * Replaced `setInterval` to avoid time drift.
 * Added the ability to remain accurate even if the browser goes inactive.
-* Sounds are complete, not rudimentary.
+* Sounds are now complete, not rudimentary. (But I think I am going to redo them again.)
 * Added ability to pick the number of Pomodoros.
+* Still not satidfied with the settings layout and options.
 
 **To do:**
 
-* Modal styling is basic, not attractive. It need a complete overhaul.
+* Modal styling is basic, not attractive. It needs a complete overhaul.
 * Needs mobile fine tuning.
 * Settings interface layout not final.
 
