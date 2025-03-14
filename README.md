@@ -1,4 +1,4 @@
-This is a work in progress. I am building a pomodoro timer and only using AI, I'm not hand writing any of the code. (Also, I seem to be working on it for 15 monutes at a time, once or twice a week.)
+This is a work in progress. I am building a pomodoro timer and only using AI, I'm not hand writing any of the code. (Also, I seem to be working on it for 15 minutes at a time, once or twice a week.)
 
 **Version 0.3**
 
