@@ -4,13 +4,13 @@ This is a work in progress. I am building a pomodoro timer and only using AI, I'
 
 ![Ver 0.2](https://raw.githubusercontent.com/KevanMacGee/HTML-Pom/refs/heads/main/screenshots/ScreenshotVer0_3.png)
 
-I'm having trouble with the design through AI. I am used to tweaking the CSS by hand but I started this to make something entirely with AI. It doesn't always get what I mean and I'm frequently encountering instances when it would be faster to just write the code myself. So I'm going to accept some "good enough" edits by AI for a while. I'll be concetrating on the functionality for the next few versions, even if it means the design is sub-par for a bit.
+I'm having trouble with the design through AI. I am used to tweaking the CSS by hand but I started this to make something entirely with AI. It doesn't always get what I mean and I'm frequently encountering instances when it would be faster to just write the code myself. So I'm going to accept some "good enough" edits by AI for a while. I'll be concentrating on the functionality for the next few versions, even if it means the design is sub-par for a bit.
 
 * Replaced `setInterval` to avoid time drift.
 * Added the ability to remain accurate even if the browser goes inactive.
 * Sounds are now complete, not rudimentary. (But I think I am going to redo them again.)
 * Added ability to pick the number of Pomodoros.
-* Still not satidfied with the settings layout and options.
+* Still not satisfied with the settings layout and options.
 
 **To do:**
 
