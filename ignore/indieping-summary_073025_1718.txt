@@ -1,0 +1,1592 @@
+This file is a merged representation of a subset of the codebase, containing files not matching ignore patterns, combined into a single document by Repomix.
+
+<file_summary>
+This section contains a summary of this file.
+
+<purpose>
+This file contains a packed representation of a subset of the repository's contents that is considered the most important context.
+It is designed to be easily consumable by AI systems for analysis, code review,
+or other automated processes.
+</purpose>
+
+<file_format>
+The content is organized as follows:
+1. This summary section
+2. Repository information
+3. Directory structure
+4. Repository files (if enabled)
+5. Multiple file entries, each consisting of:
+  - File path as an attribute
+  - Full contents of the file
+</file_format>
+
+<usage_guidelines>
+- This file should be treated as read-only. Any changes should be made to the
+  original repository files, not this packed version.
+- When processing this file, use the file path to distinguish
+  between different files in the repository.
+- Be aware that this file may contain sensitive information. Handle it with
+  the same level of security as you would the original repository.
+</usage_guidelines>
+
+<notes>
+- Some files may have been excluded based on .gitignore rules and Repomix's configuration
+- Binary files are not included in this packed representation. Please refer to the Repository Structure section for a complete list of file paths, including binary files
+- Files matching these patterns are excluded: .env, *.log
+- Files matching patterns in .gitignore are excluded
+- Files matching default ignore patterns are excluded
+- Files are sorted by Git change count (files with more changes are at the bottom)
+</notes>
+
+</file_summary>
+
+<directory_structure>
+.gitattributes
+.kiro/chat text.md
+.kiro/specs/pomodoro-technical-improvements/design.md
+.kiro/specs/pomodoro-technical-improvements/requirements.md
+.kiro/specs/pomodoro-technical-improvements/tasks.md
+css/styles.css
+index.html
+js/script.js
+README.md
+run_repomix_txt.bat
+sounds/desktop.ini
+</directory_structure>
+
+<files>
+This section contains the contents of the repository's files.
+
+<file path="run_repomix_txt.bat">
+@echo off
+
+setlocal
+
+:: Set timestamp for filenames with your specified format (MMDDYY_HHMM)
+for /f %%a in ('powershell -NoProfile -Command "Get-Date -Format 'MMddyy_HHmm'"') do set timestamp=%%a
+
+echo Running Repomix...
+echo Output will be saved to indieping-summary_%timestamp%.txt
+echo.
+
+:: Run repomix without logging
+npx repomix --output "indieping-summary_%timestamp%.txt" --ignore ".env,*.log"
+
+:: Always pause at the end
+echo.
+echo Script complete.
+pause
+</file>
+
+<file path=".gitattributes">
+# Auto detect text files and perform LF normalization
+* text=auto
+</file>
+
+<file path=".kiro/chat text.md">
+```
+Deeply analyze this project and find ways it needs to be improved. Don't forget this is a fun project rather than a mission critical app. Look for technical deficiencies. Create a detailed list and plan of how to fix what you find.
+```
+
+Do the tasks look good?
+
+Perfect! I've completed the comprehensive analysis and created a detailed spec for improving your Pomodoro timer project. Here's a summary of what I found and planned:
+
+Key Technical Issues Identified:
+
+- Code Organization: Monolithic 600+ line script.js file with mixed concerns
+- Error Handling: Inconsistent localStorage error handling, audio failures not gracefully handled
+- Performance: Potential memory leaks, inefficient timing mechanisms, no resource cleanup
+- Accessibility: Missing keyboard navigation, no screen reader support, poor mobile experience
+- Architecture: Global variables, tightly coupled code, no separation of concerns
+- Testing: No automated tests, making changes risky
+- Modern Standards: Missing CSP, no offline support, outdated patterns
+
+The Improvement Plan:
+I've created a 15-task implementation plan that will transform your fun project into a well-architected, maintainable application while keeping its simplicity. The plan includes:
+
+- Modular Architecture: Breaking the monolith into focused classes (Timer, AudioManager, StorageManager, etc.)
+
+- Robust Error Handling: Graceful fallbacks for storage, audio, and network issues
+- Performance Optimizations: Better timing accuracy, resource management, battery optimization
+- Accessibility: Full keyboard support, screen reader compatibility, mobile improvements
+- Testing: Comprehensive unit and integration tests
+- Security: Input sanitization, CSP implementation, XSS prevention
+
+The tasks are designed to be incremental - each builds on the previous ones, so you can implement them one at a time and see immediate improvements. Since this is a fun project built with AI, the plan maintains that spirit while making it technically sound.
+
+You can now start executing these tasks by opening the tasks.md file and clicking "Start task" next to any task item. I'd recommend starting with task 1 to set up the project structure, then working through them sequentially.
+
+Would you like me to help you get started with any specific task?
+</file>
+
+<file path=".kiro/specs/pomodoro-technical-improvements/design.md">
+# Design Document
+
+## Overview
+
+This design addresses the technical improvements needed for the HTML Pomodoro Timer by implementing modern JavaScript patterns, improving error handling, optimizing performance, and enhancing user experience. The approach focuses on incremental improvements that maintain the existing functionality while significantly improving code quality and maintainability.
+
+The design follows a modular architecture pattern, separating concerns into distinct classes and modules while maintaining the simplicity that makes this a "fun project" rather than an over-engineered solution.
+
+## Architecture
+
+### Current Architecture Issues
+- Monolithic script.js file with mixed concerns
+- Global variables scattered throughout
+- Inconsistent error handling
+- Manual DOM manipulation without abstraction
+- Timing logic mixed with UI logic
+
+### Proposed Architecture
+
+```
+src/
+├── js/
+│   ├── modules/
+│   │   ├── Timer.js           # Core timer logic
+│   │   ├── AudioManager.js    # Audio handling
+│   │   ├── StorageManager.js  # Data persistence
+│   │   ├── UIManager.js       # DOM manipulation
+│   │   └── SettingsManager.js # Settings handling
+│   ├── utils/
+│   │   ├── constants.js       # Application constants
+│   │   ├── validators.js      # Input validation
+│   │   └── helpers.js         # Utility functions
+│   └── app.js                 # Main application entry point
+├── css/
+│   ├── components/            # Component-specific styles
+│   └── styles.css            # Main stylesheet
+└── tests/
+    └── unit/                 # Unit tests for modules
+```
+
+## Components and Interfaces
+
+### 1. Timer Class
+**Purpose:** Manages core timer functionality and state
+**Responsibilities:**
+- Track timer state (work/break/long break)
+- Handle timer progression and completion
+- Manage cycle counting
+- Emit events for state changes
+
+```javascript
+class Timer {
+  constructor(config) {
+    this.workTime = config.workTime;
+    this.breakTime = config.breakTime;
+    this.longBreakTime = config.longBreakTime;
+    this.cyclesBeforeLongBreak = config.cyclesBeforeLongBreak;
+    // ... other properties
+  }
+
+  start() { /* Start timer logic */ }
+  pause() { /* Pause timer logic */ }
+  reset() { /* Reset timer logic */ }
+  tick() { /* Timer tick logic */ }
+  
+  // Event emitters
+  onStateChange(callback) { /* Register state change callback */ }
+  onComplete(callback) { /* Register completion callback */ }
+}
+```
+
+### 2. AudioManager Class
+**Purpose:** Handles all audio-related functionality
+**Responsibilities:**
+- Preload and manage audio files
+- Handle audio playback with fallbacks
+- Manage audio permissions
+- Provide volume controls
+
+```javascript
+class AudioManager {
+  constructor() {
+    this.sounds = new Map();
+    this.isEnabled = true;
+    this.volume = 1.0;
+  }
+
+  async loadSound(name, sources) { /* Load audio with fallbacks */ }
+  async playSound(name) { /* Play sound with error handling */ }
+  setVolume(level) { /* Set volume level */ }
+  toggleEnabled() { /* Enable/disable audio */ }
+}
+```
+
+### 3. StorageManager Class
+**Purpose:** Manages data persistence and state recovery
+**Responsibilities:**
+- Handle localStorage operations with fallbacks
+- Manage timer state persistence
+- Handle settings storage
+- Provide data migration capabilities
+
+```javascript
+class StorageManager {
+  constructor() {
+    this.storage = this.getAvailableStorage();
+  }
+
+  save(key, data) { /* Save data with error handling */ }
+  load(key, defaultValue) { /* Load data with fallbacks */ }
+  remove(key) { /* Remove data safely */ }
+  clear() { /* Clear all stored data */ }
+}
+```
+
+### 4. UIManager Class
+**Purpose:** Manages DOM manipulation and user interface updates
+**Responsibilities:**
+- Update timer display
+- Handle button states
+- Manage modal interactions
+- Provide accessibility features
+
+```javascript
+class UIManager {
+  constructor(elements) {
+    this.elements = elements;
+    this.setupEventListeners();
+  }
+
+  updateDisplay(timeLeft) { /* Update timer display */ }
+  updateStatus(status, isRunning) { /* Update status text */ }
+  showError(message) { /* Display error messages */ }
+  setupAccessibility() { /* Configure ARIA attributes */ }
+}
+```
+
+### 5. SettingsManager Class
+**Purpose:** Handles settings validation and management
+**Responsibilities:**
+- Validate user input
+- Manage settings persistence
+- Provide default configurations
+- Handle settings migration
+
+```javascript
+class SettingsManager {
+  constructor(storageManager) {
+    this.storage = storageManager;
+    this.defaults = { /* default settings */ };
+  }
+
+  validateSettings(settings) { /* Validate input */ }
+  saveSettings(settings) { /* Save validated settings */ }
+  loadSettings() { /* Load settings with defaults */ }
+  resetToDefaults() { /* Reset to default values */ }
+}
+```
+
+## Data Models
+
+### Timer State Model
+```javascript
+const TimerState = {
+  timeLeft: Number,           // Seconds remaining
+  isRunning: Boolean,         // Timer running state
+  currentMode: String,        // 'work', 'break', 'longBreak'
+  cyclesCompleted: Number,    // Completed pomodoro cycles
+  targetCycles: Number,       // Target number of cycles
+  startTime: Number,          // Timestamp when timer started
+  endTime: Number            // Calculated end timestamp
+};
+```
+
+### Settings Model
+```javascript
+const Settings = {
+  workDuration: Number,       // Work time in minutes
+  breakDuration: Number,      // Break time in minutes
+  longBreakDuration: Number,  // Long break time in minutes
+  cyclesBeforeLongBreak: Number, // Cycles before long break
+  targetCycles: Number,       // Target cycles per session
+  audioEnabled: Boolean,      // Audio notifications enabled
+  volume: Number,            // Audio volume (0-1)
+  theme: String              // UI theme preference
+};
+```
+
+## Error Handling
+
+### Error Categories and Strategies
+
+1. **Storage Errors**
+   - Fallback to sessionStorage if localStorage fails
+   - Fallback to in-memory storage if both fail
+   - Graceful degradation with user notification
+
+2. **Audio Errors**
+   - Silent failure with visual notification fallback
+   - Retry mechanism for temporary failures
+   - User preference to disable audio entirely
+
+3. **Input Validation Errors**
+   - Real-time validation with helpful messages
+   - Prevent invalid state transitions
+   - Auto-correction for minor input issues
+
+4. **Network/Resource Errors**
+   - Offline-first approach
+   - Cached fallbacks for external resources
+   - Progressive enhancement
+
+### Error Handling Implementation
+```javascript
+class ErrorHandler {
+  static handle(error, context) {
+    console.warn(`Error in ${context}:`, error);
+    
+    switch (error.type) {
+      case 'STORAGE_ERROR':
+        return this.handleStorageError(error);
+      case 'AUDIO_ERROR':
+        return this.handleAudioError(error);
+      case 'VALIDATION_ERROR':
+        return this.handleValidationError(error);
+      default:
+        return this.handleGenericError(error);
+    }
+  }
+}
+```
+
+## Testing Strategy
+
+### Unit Testing Approach
+- **Timer Logic:** Test state transitions, timing accuracy, cycle counting
+- **Storage Operations:** Test save/load operations, error handling, fallbacks
+- **Audio Management:** Test loading, playback, error scenarios
+- **Input Validation:** Test edge cases, invalid inputs, boundary conditions
+- **UI Updates:** Test DOM manipulation, accessibility features
+
+### Testing Tools and Framework
+- **Jest** for unit testing JavaScript modules
+- **Testing Library** for DOM testing utilities
+- **Mock implementations** for localStorage, audio APIs
+- **Coverage reporting** to ensure comprehensive testing
+
+### Test Structure Example
+```javascript
+describe('Timer', () => {
+  let timer;
+  
+  beforeEach(() => {
+    timer = new Timer(defaultConfig);
+  });
+
+  describe('start()', () => {
+    it('should transition from stopped to running state', () => {
+      timer.start();
+      expect(timer.isRunning).toBe(true);
+    });
+
+    it('should emit state change event', () => {
+      const callback = jest.fn();
+      timer.onStateChange(callback);
+      timer.start();
+      expect(callback).toHaveBeenCalledWith('running');
+    });
+  });
+});
+```
+
+## Performance Optimizations
+
+### Timing Accuracy Improvements
+- Replace `setInterval` with `requestAnimationFrame` for better precision
+- Use `performance.now()` for high-resolution timestamps
+- Implement drift correction for long-running timers
+
+### Memory Management
+- Proper cleanup of event listeners and intervals
+- Efficient DOM updates using document fragments
+- Lazy loading of audio resources
+
+### Resource Loading
+- Preload critical audio files
+- Implement service worker for offline caching
+- Optimize CSS and JavaScript delivery
+
+### Battery and CPU Optimization
+- Reduce update frequency when tab is inactive
+- Use passive event listeners where appropriate
+- Minimize DOM queries and updates
+
+## Accessibility Enhancements
+
+### Keyboard Navigation
+- Full keyboard accessibility for all controls
+- Logical tab order and focus management
+- Keyboard shortcuts for common actions
+
+### Screen Reader Support
+- Proper ARIA labels and descriptions
+- Live regions for timer updates
+- Semantic HTML structure
+
+### Visual Accessibility
+- High contrast mode support
+- Scalable text and UI elements
+- Reduced motion preferences
+
+### Implementation Example
+```javascript
+class AccessibilityManager {
+  constructor(uiManager) {
+    this.ui = uiManager;
+    this.setupARIA();
+    this.setupKeyboardHandlers();
+  }
+
+  announceTimerChange(timeLeft, mode) {
+    const announcement = `${mode} time: ${this.formatTime(timeLeft)} remaining`;
+    this.ui.updateLiveRegion(announcement);
+  }
+
+  setupKeyboardHandlers() {
+    document.addEventListener('keydown', (e) => {
+      if (e.key === ' ' && e.target === document.body) {
+        e.preventDefault();
+        this.ui.toggleTimer();
+      }
+    });
+  }
+}
+```
+
+## Security Considerations
+
+### Input Sanitization
+- Validate all user inputs before processing
+- Sanitize data before storing in localStorage
+- Prevent XSS through proper escaping
+
+### Content Security Policy
+```html
+<meta http-equiv="Content-Security-Policy" 
+      content="default-src 'self'; 
+               script-src 'self' 'unsafe-inline'; 
+               style-src 'self' 'unsafe-inline';
+               media-src 'self';">
+```
+
+### Data Privacy
+- No external data transmission
+- Local storage only for user preferences
+- Clear data retention policies
+
+## Migration Strategy
+
+### Backward Compatibility
+- Detect existing localStorage format
+- Migrate old data to new structure
+- Maintain functionality during transition
+
+### Rollout Plan
+1. **Phase 1:** Refactor core timer logic
+2. **Phase 2:** Implement new storage system
+3. **Phase 3:** Add audio improvements
+4. **Phase 4:** Enhance UI and accessibility
+5. **Phase 5:** Add testing and optimization
+
+### Migration Implementation
+```javascript
+class DataMigrator {
+  static migrate() {
+    const version = StorageManager.getVersion();
+    
+    if (version < 2) {
+      this.migrateToV2();
+    }
+    
+    StorageManager.setVersion(2);
+  }
+
+  static migrateToV2() {
+    // Convert old localStorage keys to new format
+    const oldWorkTime = localStorage.getItem('workTime');
+    if (oldWorkTime) {
+      const settings = { workDuration: parseInt(oldWorkTime) / 60 };
+      new SettingsManager().saveSettings(settings);
+      localStorage.removeItem('workTime');
+    }
+  }
+}
+```
+</file>
+
+<file path=".kiro/specs/pomodoro-technical-improvements/requirements.md">
+# Requirements Document
+
+## Introduction
+
+This feature focuses on addressing technical deficiencies and improving the overall code quality, user experience, and maintainability of the HTML Pomodoro Timer. The project is currently functional but has several technical debt issues, code organization problems, and missing modern web development best practices that need to be addressed to make it more robust and maintainable.
+
+## Requirements
+
+### Requirement 1: Code Organization and Architecture
+
+**User Story:** As a developer maintaining this codebase, I want the code to be well-organized and follow modern JavaScript patterns, so that it's easier to understand, debug, and extend.
+
+#### Acceptance Criteria
+
+1. WHEN the codebase is reviewed THEN the JavaScript SHALL be organized into logical modules or classes
+2. WHEN functions are defined THEN they SHALL have clear, single responsibilities and be properly documented
+3. WHEN global variables are used THEN they SHALL be minimized and properly scoped
+4. WHEN the code is structured THEN it SHALL follow consistent naming conventions and formatting
+5. WHEN constants are defined THEN they SHALL be grouped logically and clearly named
+
+### Requirement 2: Error Handling and Resilience
+
+**User Story:** As a user of the Pomodoro timer, I want the application to handle errors gracefully and continue working even when things go wrong, so that my productivity sessions aren't interrupted.
+
+#### Acceptance Criteria
+
+1. WHEN localStorage operations fail THEN the application SHALL continue to function with default values
+2. WHEN audio playback fails THEN the user SHALL be notified but the timer SHALL continue working
+3. WHEN invalid settings are entered THEN the application SHALL validate input and show helpful error messages
+4. WHEN network issues occur THEN the application SHALL work offline without external dependencies
+5. WHEN browser compatibility issues arise THEN the application SHALL degrade gracefully
+
+### Requirement 3: Performance and Resource Management
+
+**User Story:** As a user running the timer on various devices, I want the application to be performant and not consume excessive resources, so that it doesn't slow down my device or drain battery.
+
+#### Acceptance Criteria
+
+1. WHEN the timer is running THEN it SHALL use efficient timing mechanisms without memory leaks
+2. WHEN audio files are loaded THEN they SHALL be properly preloaded and cached
+3. WHEN the page becomes inactive THEN unnecessary processing SHALL be minimized
+4. WHEN DOM updates occur THEN they SHALL be batched and optimized
+5. WHEN event listeners are attached THEN they SHALL be properly cleaned up when not needed
+
+### Requirement 4: User Experience and Accessibility
+
+**User Story:** As a user with different abilities and devices, I want the timer to be accessible and provide a smooth experience across all platforms, so that everyone can use it effectively.
+
+#### Acceptance Criteria
+
+1. WHEN using keyboard navigation THEN all interactive elements SHALL be accessible via keyboard
+2. WHEN using screen readers THEN the timer state and changes SHALL be properly announced
+3. WHEN viewing on mobile devices THEN the interface SHALL be touch-friendly and responsive
+4. WHEN the timer state changes THEN visual and audio feedback SHALL be clear and consistent
+5. WHEN settings are modified THEN changes SHALL be validated and provide immediate feedback
+
+### Requirement 5: Data Persistence and State Management
+
+**User Story:** As a user who switches between tabs or accidentally closes the browser, I want my timer state to be preserved reliably, so that I don't lose my progress.
+
+#### Acceptance Criteria
+
+1. WHEN the browser tab becomes inactive THEN the timer state SHALL be accurately maintained
+2. WHEN the page is refreshed THEN the current session SHALL be restored correctly
+3. WHEN localStorage is unavailable THEN the application SHALL fall back to session storage or memory
+4. WHEN timer state is saved THEN it SHALL include all necessary information for accurate restoration
+5. WHEN multiple tabs are open THEN timer state SHALL be synchronized or conflicts handled
+
+### Requirement 6: Code Quality and Maintainability
+
+**User Story:** As a developer working on this project, I want the code to follow best practices and be well-tested, so that future changes can be made confidently without breaking existing functionality.
+
+#### Acceptance Criteria
+
+1. WHEN code is written THEN it SHALL follow ESLint rules and consistent formatting
+2. WHEN functions are created THEN they SHALL be pure functions where possible and easily testable
+3. WHEN bugs are fixed THEN unit tests SHALL be added to prevent regression
+4. WHEN new features are added THEN they SHALL include appropriate test coverage
+5. WHEN code is refactored THEN existing functionality SHALL remain intact
+
+### Requirement 7: Modern Web Standards and Security
+
+**User Story:** As a user concerned about security and performance, I want the application to follow modern web standards and security best practices, so that my data is safe and the app performs well.
+
+#### Acceptance Criteria
+
+1. WHEN external resources are loaded THEN they SHALL use secure HTTPS connections
+2. WHEN user data is stored THEN it SHALL be properly sanitized and validated
+3. WHEN the application loads THEN it SHALL use modern JavaScript features appropriately
+4. WHEN CSP headers are implemented THEN they SHALL prevent XSS attacks
+5. WHEN the service worker is implemented THEN it SHALL enable offline functionality
+
+### Requirement 8: Audio System Improvements
+
+**User Story:** As a user who relies on audio cues for timer transitions, I want the audio system to be reliable and customizable, so that I never miss important timer events.
+
+#### Acceptance Criteria
+
+1. WHEN audio files fail to load THEN fallback sounds or visual notifications SHALL be provided
+2. WHEN audio permission is required THEN the user SHALL be prompted appropriately
+3. WHEN custom sounds are uploaded THEN they SHALL be validated and stored securely
+4. WHEN volume controls are provided THEN they SHALL persist across sessions
+5. WHEN audio plays THEN it SHALL respect user's system volume and notification settings
+</file>
+
+<file path=".kiro/specs/pomodoro-technical-improvements/tasks.md">
+# Implementation Plan
+
+- [ ] 1. Set up project structure and create utility modules
+  - Create new directory structure with modules, utils, and tests folders
+  - Implement constants.js with all application constants and configuration
+  - Create helpers.js with utility functions for time formatting and validation
+  - Write validators.js with input validation functions and error types
+  - _Requirements: 1.1, 1.4, 1.5, 6.1_
+
+- [ ] 2. Implement StorageManager class with error handling
+  - Create StorageManager.js with localStorage operations and fallback mechanisms
+  - Implement safe storage methods with try-catch error handling
+  - Add support for sessionStorage and in-memory fallbacks when localStorage fails
+  - Write unit tests for storage operations and error scenarios
+  - _Requirements: 2.1, 2.3, 5.3, 6.3_
+
+- [ ] 3. Create SettingsManager with validation and persistence
+  - Implement SettingsManager.js class with settings validation and defaults
+  - Add input validation for duration and cycle settings with helpful error messages
+  - Integrate with StorageManager for settings persistence
+  - Create data migration logic for existing localStorage settings
+  - Write unit tests for settings validation and migration
+  - _Requirements: 2.3, 5.1, 6.3, 7.2_
+
+- [ ] 4. Refactor core Timer class with improved timing logic
+  - Create Timer.js class with accurate timing using performance.now()
+  - Implement event-driven architecture with state change callbacks
+  - Add drift correction for long-running timers and tab visibility handling
+  - Separate timer logic from UI concerns with clean interfaces
+  - Write comprehensive unit tests for timer state transitions and accuracy
+  - _Requirements: 1.1, 1.2, 3.1, 3.3, 5.1, 5.2_
+
+- [ ] 5. Implement AudioManager with robust error handling
+  - Create AudioManager.js class with audio preloading and fallback mechanisms
+  - Add audio permission handling and graceful failure modes
+  - Implement volume controls and audio enable/disable functionality
+  - Add support for multiple audio formats with automatic fallback selection
+  - Write unit tests for audio loading, playback, and error scenarios
+  - _Requirements: 2.2, 8.1, 8.2, 8.4, 8.5_
+
+- [ ] 6. Create UIManager for DOM manipulation and accessibility
+  - Implement UIManager.js class with centralized DOM manipulation
+  - Add ARIA labels, live regions, and screen reader support
+  - Implement keyboard navigation and focus management
+  - Create error message display system with user-friendly notifications
+  - Write unit tests for UI updates and accessibility features
+  - _Requirements: 1.1, 4.1, 4.2, 4.4, 6.2_
+
+- [ ] 7. Implement ErrorHandler for centralized error management
+  - Create ErrorHandler.js class with categorized error handling strategies
+  - Add user notification system for recoverable errors
+  - Implement logging and debugging utilities for development
+  - Create fallback mechanisms for different error types
+  - Write unit tests for error handling scenarios and recovery
+  - _Requirements: 2.1, 2.2, 2.3, 2.4, 6.3_
+
+- [ ] 8. Add AccessibilityManager for enhanced user experience
+  - Create AccessibilityManager.js with keyboard shortcuts and navigation
+  - Implement high contrast and reduced motion support
+  - Add timer state announcements for screen readers
+  - Create focus management for modal interactions
+  - Write unit tests for accessibility features and keyboard navigation
+  - _Requirements: 4.1, 4.2, 4.3, 4.4_
+
+- [ ] 9. Refactor main application entry point
+  - Create new app.js as main application controller
+  - Integrate all modules with proper dependency injection
+  - Implement application initialization and cleanup logic
+  - Add data migration on application startup
+  - Write integration tests for complete application flow
+  - _Requirements: 1.1, 1.3, 5.4, 6.2_
+
+- [ ] 10. Add performance optimizations and resource management
+  - Implement requestAnimationFrame for smooth timer updates
+  - Add lazy loading for audio resources and optimize preloading
+  - Create efficient DOM update batching and minimize reflows
+  - Implement tab visibility handling for battery optimization
+  - Write performance tests and benchmarks for critical paths
+  - _Requirements: 3.1, 3.2, 3.3, 3.4_
+
+- [ ] 11. Implement comprehensive error boundaries and fallbacks
+  - Add global error handlers for unhandled exceptions
+  - Create graceful degradation for missing browser features
+  - Implement offline functionality with service worker basics
+  - Add network error handling and retry mechanisms
+  - Write unit tests for error boundaries and fallback scenarios
+  - _Requirements: 2.4, 2.5, 7.1, 7.3_
+
+- [ ] 12. Add security enhancements and input sanitization
+  - Implement Content Security Policy headers and meta tags
+  - Add input sanitization for all user-provided data
+  - Create XSS prevention measures for dynamic content
+  - Implement secure data storage practices
+  - Write security tests for input validation and data handling
+  - _Requirements: 7.1, 7.2, 7.4_
+
+- [ ] 13. Create comprehensive test suite and documentation
+  - Set up Jest testing framework with proper configuration
+  - Write unit tests for all modules with high coverage targets
+  - Create integration tests for complete user workflows
+  - Add JSDoc documentation for all public APIs
+  - Write end-to-end tests for critical user journeys
+  - _Requirements: 6.3, 6.4, 6.5_
+
+- [ ] 14. Optimize CSS and implement responsive improvements
+  - Refactor CSS into component-based structure
+  - Add responsive design improvements for mobile devices
+  - Implement CSS custom properties for theming support
+  - Optimize animations and transitions for performance
+  - Add print styles and high contrast mode support
+  - _Requirements: 4.3, 4.4_
+
+- [ ] 15. Final integration and cleanup
+  - Remove old monolithic script.js file after verifying all functionality
+  - Update HTML to reference new modular JavaScript files
+  - Perform final testing across different browsers and devices
+  - Clean up unused code and optimize bundle size
+  - Update README with new architecture and development instructions
+  - _Requirements: 1.1, 2.5, 6.1, 6.5_
+</file>
+
+<file path="sounds/desktop.ini">
+[ViewState]
+Mode=
+Vid=
+FolderType=Generic
+</file>
+
+<file path="index.html">
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no"
+    />
+    <title>Pomodoro Timer</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="css/styles.css" rel="stylesheet" />
+    <link rel="preload" as="audio" href="sounds/work-start.mp3" />
+    <link rel="preload" as="audio" href="sounds/work-start.ogg" />
+    <link rel="preload" as="audio" href="sounds/break-start.mp3" />
+    <link rel="preload" as="audio" href="sounds/break-start.ogg" />
+    <link rel="preload" as="audio" href="sounds/long-break-start.mp3" />
+    <link rel="preload" as="audio" href="sounds/long-break-start.ogg" />
+  </head>
+  <body>
+    <!-- Stylish settings button in the top-right corner -->
+    <button id="settingsBtn" class="settings-btn">⚙️ Settings</button>
+
+    <div class="container mt-5 position-relative">
+      <div class="row justify-content-center">
+        <div class="col-md-6 text-center">
+          <div class="timer-container">
+            <div class="timer-header">
+              <h1>Pomodoro Timer</h1>
+            </div>
+            <div id="timer" class="timer-display">45:00</div>
+            <div id="status" class="status-text text-success">Work Time</div>
+            <div id="cycleCount" class="mt-2">Pomodoros completed: 0</div>
+            <div class="btn-group mt-3">
+              <button id="toggleBtn" class="btn btn-primary btn-lg">Start</button>
+              <button id="resetBtn" class="btn btn-danger btn-lg">Reset</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Styled Settings Modal -->
+    <div class="modal fade" id="settingsModal" tabindex="-1" aria-labelledby="settingsModalLabel" aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="settingsModalLabel">⚙️ Timer Settings</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <div class="duration-inputs">
+              <h6 class="duration-section-title">Time in minutes</h6>
+              <div class="duration-input-group">
+                <label for="workDuration" class="form-label">Work Duration</label>
+                <input type="number" id="workDuration" class="form-control" min="0.25" step="0.25" value="45" />
+              </div>
+              <div class="duration-input-group">
+                <label for="breakDuration" class="form-label">Break Duration</label>
+                <input type="number" id="breakDuration" class="form-control" min="0.25" step="0.25" value="15" />
+              </div>
+              <div class="duration-input-group">
+                <label for="longBreakDuration" class="form-label">Long Break</label>
+                <input type="number" id="longBreakDuration" class="form-control" min="0.25" step="0.25" value="15" />
+              </div>
+            </div>
+            <div class="cycle-target-section">
+              <label for="cycleTarget" class="form-label">Number of Pomodoros</label>
+              <select id="cycleTarget" class="form-select">
+                <option value="1">1</option>
+                <option value="2">2</option>
+                <option value="3">3</option>
+                <option value="4" selected>4</option>
+                <option value="5">5</option>
+                <option value="6">6</option>
+                <option value="7">7</option>
+                <option value="8">8</option>
+                <option value="9">9</option>
+                <option value="10">10</option>
+              </select>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+            <button id="saveSettings" type="button" class="btn btn-primary">Save</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="js/script.js"></script>
+  </body>
+</html>
+</file>
+
+<file path="README.md">
+This is a work in progress. I am building a pomodoro timer and only using AI, I'm not hand writing any of the code. It's not exactly vibe coding because I am watching the diffs, suggesting different ways of doing things, correcting it if I don't like the direction, etc. (Also, I seem to be working on it for 15 minutes at a time, once or twice a week.)
+
+**Version 0.3**
+
+![Ver 0.2](https://raw.githubusercontent.com/KevanMacGee/HTML-Pom/refs/heads/main/screenshots/ScreenshotVer0_3.png)
+
+I'm having trouble with the design through AI. I am used to tweaking the CSS by hand but I started this to make something entirely with AI. It doesn't always get what I mean and I'm frequently encountering instances when it would be faster to just write the code myself. So I'm going to accept some "good enough" edits by AI for a while. I'll be concentrating on the functionality for the next few versions, even if it means the design is sub-par for a bit.
+
+* Replaced `setInterval` to avoid time drift.
+* Added the ability to remain accurate even if the browser goes inactive.
+* Sounds are now complete, not rudimentary. (But I think I am going to redo them again.)
+* Added ability to pick the number of Pomodoros.
+* Still not satisfied with the settings layout and options.
+
+**To do:**
+
+* Modal styling is basic, not attractive. It needs a complete overhaul.
+* Needs mobile fine tuning.
+* Settings interface layout not final.
+* "Paused" message doesn't disappear when the timer is un-paused.
+
+**Version 0.2**
+
+![Ver 0.2](https://raw.githubusercontent.com/KevanMacGee/HTML-Pom/refs/heads/main/screenshots/ScreenshotVer0_2a.png)
+* Added rudimentary settings.
+  - Need to add ability to pick number of cycles
+    
+
+**To do:**
+
+~~* No options yet.~~
+* Alarm sounds are still rudimentary.
+* Modal styling is basic, not attractive
+* Needs mobile fine tuning.
+* Interface design not final.
+
+**Version 0.1**
+
+![Ver 0.1](https://raw.githubusercontent.com/KevanMacGee/HTML-Pom/refs/heads/main/screenshots/ScreenshotVer0_1.png)
+
+**To do:**
+
+~~* No options yet.~~
+* Alarm sounds are stlll rudimentary.
+* Needs mobile fine tuning.
+* Interface design not final.
+</file>
+
+<file path="css/styles.css">
+body {
+    animation: pulse 20s infinite;
+    min-height: 100vh;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+@keyframes pulse {
+    0%, 100% {
+        background-color: hsl(278, 92%, 40%);
+    }
+    50% {
+        background-color: hsl(241, 68%, 26%);
+    }
+}
+
+.container {
+    margin: 0;
+    padding: 2rem;
+    position: relative;
+}
+
+.timer-container {
+    background-color: #212529;
+    border-radius: 15px;
+    padding: 2rem;
+    box-shadow: 
+        0 10px 30px rgba(0, 0, 0, 0.3),
+        0 15px 45px rgba(0, 0, 0, 0.2),
+        0 2px 5px rgba(255, 255, 255, 0.05);
+    color: #f8f9fa;
+    transform: translateY(-5px);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.timer-container:hover {
+    transform: translateY(-8px);
+    box-shadow: 
+        0 15px 35px rgba(0, 0, 0, 0.35),
+        0 20px 50px rgba(0, 0, 0, 0.25),
+        0 2px 5px rgba(255, 255, 255, 0.05);
+}
+
+.timer-header {
+    background: linear-gradient(to bottom, #1a73e8, #1557b0);
+    margin: -2rem -2rem 1rem -2rem;
+    padding: 1rem;
+    border-top-left-radius: 15px;
+    border-top-right-radius: 15px;
+    border-bottom: 1px solid #1557b0;
+}
+
+.timer-header h1 {
+    color: #ffffff;
+    margin: 0;
+    font-size: 2rem;
+    font-weight: 800;
+    text-shadow: 0 2px 6px rgba(0,0,0,0.4);
+}
+
+/* === Updated Settings Button Styles === */
+.settings-btn {
+    position: fixed;
+    top: 15px;
+    right: 20px;
+    background: linear-gradient(to bottom, #1a73e8, #1557b0);
+    color: #ffffff;
+    border: none;
+    padding: 8px 15px;
+    font-size: 1rem;
+    font-weight: 800;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    box-shadow: 
+        0 10px 30px rgba(0, 0, 0, 0.3),
+        0 15px 45px rgba(0, 0, 0, 0.2),
+        0 2px 5px rgba(255, 255, 255, 0.05);
+    text-shadow: 0 2px 6px rgba(0,0,0,0.4);
+}
+
+.settings-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 
+        0 12px 32px rgba(0, 0, 0, 0.35),
+        0 18px 50px rgba(0, 0, 0, 0.25),
+        0 3px 6px rgba(255, 255, 255, 0.05);
+}
+
+/* === Modal Styling to Match Timer === */
+.modal-content {
+    background-color: #212529;
+    color: #f8f9fa;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+}
+
+.modal-header {
+    background: linear-gradient(to bottom, #1a73e8, #1557b0);
+    color: #ffffff;
+    padding: 1rem;
+    text-align: center;
+    font-weight: bold;
+    border-top-left-radius: 15px;
+    border-top-right-radius: 15px;
+    border-bottom: 1px solid #373b3e; /* Updated */
+}
+
+/* Modal title should match timer title */
+.modal-title {
+    font-size: 2rem;
+    font-weight: 800;
+    text-shadow: 0 2px 6px rgba(0,0,0,0.4);
+}
+
+/* Close button (X) should be white */
+.btn-close {
+    filter: invert(1) grayscale(100%) brightness(200%); /* Updated */
+}
+
+/* Modal body styling */
+.modal-body {
+    background-color: #212529;
+    color: #f8f9fa;
+    padding: 20px;
+}
+
+/* Modal footer is now completely black */
+.modal-footer {
+    background-color: #212529;  /* Match the timer's dark background */
+    border-top: 1px solid #373b3e; /* Updated */
+    color: #f8f9fa;
+}
+
+/* Dark theme for modal inputs */
+.form-control {
+    background-color: #343a40;
+    border-color: #495057;
+    color: #f8f9fa;
+}
+
+.form-control:focus {
+    background-color: #343a40;
+    border-color: #0d6efd;
+    color: #f8f9fa;
+    box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+}
+
+/* Settings Modal Layout */
+.duration-inputs {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.5rem;
+    padding: 1.5rem;
+    align-items: stretch;
+}
+
+.duration-input-group {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 1rem;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 8px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    height: 100%;
+    min-height: 140px;  /* Set a minimum height for consistency */
+}
+
+.duration-input-group .form-label {
+    margin-bottom: 1rem;
+    text-align: center;
+    font-weight: 500;
+    color: #f8f9fa;
+    flex: 1;
+    display: flex;
+    align-items: center;
+}
+
+.duration-input-group .form-control,
+#cycleTarget {
+    width: 80px;
+    text-align: center;
+    background-color: #343a40;
+    border-color: #495057;
+    color: #f8f9fa;
+    margin-top: auto;
+    margin-left: auto;    /* Add this */
+    margin-right: auto;   /* Add this */
+    -moz-appearance: textfield; /* Remove spinner for Firefox */
+}
+
+/* Remove spinner buttons for Chrome/Safari/Edge */
+.duration-input-group .form-control::-webkit-outer-spin-button,
+.duration-input-group .form-control::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+/* Center the select dropdown text */
+#cycleTarget option {
+    text-align: center;
+}
+
+/* Add separator and styling for cycle target section */
+.cycle-target-section {
+    grid-column: 1 / -1;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    padding-top: 1.5rem;
+    margin-top: 0.5rem;
+    text-align: center;
+    display: flex;           /* Add this */
+    flex-direction: column;  /* Add this */
+    align-items: center;     /* Add this */
+    gap: 1rem;              /* Add this */
+}
+
+#cycleTarget {
+    width: 120px;
+    margin: 0 auto;
+    background-color: #343a40;
+    border-color: #495057;
+    color: #f8f9fa;
+    text-align: center;
+    appearance: none;        /* Add this */
+    padding-right: 8px;     /* Add this */
+}
+
+/* Add this new style for the dropdown arrow */
+#cycleTarget::-ms-expand {
+    display: none;
+}
+
+/* Remove the previous cycle target specific styling */
+#cycleTarget {
+    font-weight: normal;
+    color: #f8f9fa;
+}
+
+.duration-section-title {
+    grid-column: 1 / -1;
+    text-align: center;
+    margin-bottom: 1rem;
+    color: #f8f9fa;
+    font-weight: 500;
+}
+
+.timer-display {
+    font-size: 6rem;
+    font-weight: bold;
+    margin: 2rem 0;
+    color: #fff;
+}
+
+#cycleCount {
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: #f8f9fa !important; /* Override Bootstrap's text-muted */
+    margin: 1rem 0;
+    text-shadow: 0 1px 3px rgba(0,0,0,0.3);
+}
+</file>
+
+<file path="js/script.js">
+document.addEventListener('DOMContentLoaded', () => {
+    // Request audio permission through user interaction
+    document.addEventListener('click', function initAudio() {
+        const audio = new Audio();
+        audio.play().catch(() => {});
+        document.removeEventListener('click', initAudio);
+    }, { once: true });
+
+    const timerDisplay = document.getElementById('timer');
+    const statusDisplay = document.getElementById('status');
+    const toggleBtn = document.getElementById('toggleBtn');
+    const resetBtn = document.getElementById('resetBtn');
+    const settingsBtn = document.getElementById('settingsBtn');
+    const saveSettingsBtn = document.getElementById('saveSettings');
+    const workDurationInput = document.getElementById('workDuration');
+    const breakDurationInput = document.getElementById('breakDuration');
+    const longBreakDurationInput = document.getElementById('longBreakDuration');
+    const cycleDisplay = document.getElementById('cycleCount');
+    const cycleTargetInput = document.getElementById('cycleTarget');
+    let cyclesCompleted = 0;
+    let targetCycles = 4;
+    let isWorkComplete = false;  // Add this flag to track work completion
+    let timerInterval = null;  // Add this line
+
+    // Changed from 45 and 15 minutes to 15 seconds each
+    let WORK_TIME = 15;  // 15 seconds
+    let BREAK_TIME = 15; // 15 seconds
+    let LONG_BREAK_TIME = 15 * 60; // 15 minutes in seconds
+    const CYCLES_BEFORE_LONG_BREAK = 4;
+    let timeLeft = WORK_TIME;
+    let isRunning = false;
+    let isWorkTime = true;
+    let isLongBreak = false;
+
+    // Add sound file constants
+    const workSound = createAudioElement('sounds/work-start.mp3', 'sounds/work-start.ogg');
+    const breakSound = createAudioElement('sounds/break-start.mp3', 'sounds/break-start.ogg');
+    const longBreakSound = createAudioElement('sounds/long-break-start.mp3', 'sounds/long-break-start.ogg');
+
+    // Add these constants at the top with other constants
+    const STORAGE_KEYS = {
+        END_TIME: 'pomodoroEndTime',
+        CURRENT_MODE: 'pomodoroCurrentMode',
+        CYCLES: 'pomodoroCycles',
+        IS_LONG_BREAK: 'pomodoroIsLongBreak',
+        TARGET_CYCLES: 'pomodoroTargetCycles'
+    };
+
+    let lastRealTime = null;
+    let lastVisibleTime = Date.now();
+    let wasRunning = false;
+
+    function updateDisplay() {
+        const minutes = Math.floor(timeLeft / 60);
+        const seconds = timeLeft % 60;
+        timerDisplay.textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+    }
+
+    function updateStatus() {
+        let statusText = isWorkTime ? 'Work Time' : (isLongBreak ? 'Long Break' : 'Break Time');
+        if (!isRunning) {
+            statusText += ' (Paused)';
+            statusDisplay.classList.remove('pulse-animation');
+        } else {
+            statusDisplay.classList.add('pulse-animation');
+        }
+        statusDisplay.textContent = statusText;
+        statusDisplay.className = `status-text text-${isWorkTime ? 'success' : 'primary'}${isRunning ? ' pulse-animation' : ''}`;
+    }
+
+    function updateCycleCount() {
+        cycleDisplay.textContent = `Pomodoros completed: ${cyclesCompleted}${targetCycles ? ` / ${targetCycles}` : ''}`;
+    }
+
+    // Replace the updateTimer function with this improved version
+    function updateTimer() {
+        if (!isRunning) return;
+
+        const currentTime = Date.now();
+        if (lastRealTime === null) {
+            lastRealTime = currentTime;
+            return;
+        }
+
+        // Calculate actual elapsed time
+        const realElapsed = Math.floor((currentTime - lastRealTime) / 1000);
+        lastRealTime = currentTime;
+
+        if (realElapsed > 0) {
+            // Update timeLeft considering actual elapsed time
+            timeLeft = Math.max(0, timeLeft - realElapsed);
+            updateDisplay();
+
+            // Handle timer completion
+            if (timeLeft === 0) {
+                handleTimerCompletion();
+                lastRealTime = null; // Reset for next cycle
+            }
+        }
+    }
+
+    // Update the handleTimerCompletion function to use the simpler audio
+    function handleTimerCompletion() {
+        if (isWorkTime) {
+            isWorkTime = false;
+            isWorkComplete = true;
+            
+            if ((cyclesCompleted + 1) % CYCLES_BEFORE_LONG_BREAK === 0) {
+                isLongBreak = true;
+                timeLeft = LONG_BREAK_TIME;
+                playSound(longBreakSound); // Already using playSound helper ✓
+            } else {
+                isLongBreak = false;
+                timeLeft = BREAK_TIME;
+                playSound(breakSound); // Already using playSound helper ✓
+            }
+        } else {
+            if (isWorkComplete) {
+                cyclesCompleted++;
+                updateCycleCount();
+                checkCycleTarget();
+            }
+            isWorkTime = true;
+            isWorkComplete = false;
+            timeLeft = WORK_TIME;
+            playSound(workSound); // Already using playSound helper ✓
+        }
+        updateStatus();
+    }
+
+    // Update toggleTimer to initialize lastRealTime
+    function toggleTimer() {
+        if (isRunning) {
+            if (timerInterval) {
+                clearInterval(timerInterval);
+                timerInterval = null;
+            }
+            isRunning = false;
+            lastRealTime = null;
+            safeRemoveItem(STORAGE_KEYS.END_TIME);
+            toggleBtn.textContent = 'Start';
+            toggleBtn.className = 'btn btn-primary btn-lg';
+        } else {
+            isRunning = true;
+            lastRealTime = Date.now();
+            if (timerInterval) {
+                clearInterval(timerInterval);
+            }
+            timerInterval = setInterval(updateTimer, 1000);
+            saveTimerState();
+            
+            // Play appropriate sound
+            if (isWorkTime) {
+                playSound(workSound);
+            } else if (isLongBreak) {
+                playSound(longBreakSound);
+            } else {
+                playSound(breakSound);
+            }
+            
+            toggleBtn.textContent = 'Pause';
+            toggleBtn.className = 'btn btn-warning btn-lg';
+        }
+        updateStatus();
+    }
+
+    function resetTimer() {
+        // Clear interval and reset running state
+        clearInterval(timerInterval);
+        isRunning = false;
+        lastRealTime = null;
+
+        // Reset timer state
+        isWorkTime = true;
+        isWorkComplete = false;
+        isLongBreak = false;
+        timeLeft = WORK_TIME;
+        cyclesCompleted = 0;
+
+        // Clean up all timer-related localStorage items
+        safeRemoveItem(STORAGE_KEYS.END_TIME);
+        safeRemoveItem(STORAGE_KEYS.CURRENT_MODE);
+        safeRemoveItem(STORAGE_KEYS.CYCLES);
+        safeRemoveItem(STORAGE_KEYS.IS_LONG_BREAK);
+
+        // Reset UI elements
+        toggleBtn.textContent = 'Start';
+        toggleBtn.className = 'btn btn-primary btn-lg';
+        
+        // Update displays
+        updateDisplay();
+        updateStatus();
+        updateCycleCount();
+    }
+
+    function openSettings() {
+        workDurationInput.value = WORK_TIME / 60;
+        breakDurationInput.value = BREAK_TIME / 60;
+        longBreakDurationInput.value = LONG_BREAK_TIME / 60;
+        cycleTargetInput.value = targetCycles;
+        new bootstrap.Modal(document.getElementById('settingsModal')).show();
+    }
+
+    function saveSettings() {
+        try {
+            const workDuration = parseFloat(workDurationInput.value);
+            const breakDuration = parseFloat(breakDurationInput.value);
+            const longBreakDuration = parseFloat(longBreakDurationInput.value);
+            const cycles = parseInt(cycleTargetInput.value, 10);
+
+            if (workDuration && breakDuration && longBreakDuration && cycles) {
+                safeSetItem('workDuration', workDuration.toString());
+                safeSetItem('breakDuration', breakDuration.toString());
+                safeSetItem('longBreakDuration', longBreakDuration.toString());
+                safeSetItem('targetCycles', cycles.toString());
+                
+                WORK_TIME = Math.floor(workDuration * 60);
+                BREAK_TIME = Math.floor(breakDuration * 60);
+                LONG_BREAK_TIME = Math.floor(longBreakDuration * 60);
+                targetCycles = cycles;
+                
+                if (!isRunning) {
+                    timeLeft = WORK_TIME;
+                    updateDisplay();
+                }
+            }
+        } catch (error) {
+            console.warn('Error saving settings:', error);
+        }
+    }
+
+    // Optional: Add check for target completion
+    function checkCycleTarget() {
+        if (targetCycles && cyclesCompleted >= targetCycles) {
+            isRunning = false;
+            toggleBtn.textContent = 'Start';
+            toggleBtn.className = 'btn btn-primary btn-lg';
+            // Optional: Play a completion sound or show a notification
+        }
+    }
+
+    // Add this function to check stored time on page load
+    function checkStoredTimer() {
+        try {
+            const storedEndTime = safeGetItem(STORAGE_KEYS.END_TIME);
+            if (!storedEndTime) return false;
+
+            const now = Date.now();
+            const endTime = parseInt(storedEndTime, 10);
+
+            if (now >= endTime) {
+                // Selectively remove timer-related items only
+                safeRemoveItem(STORAGE_KEYS.END_TIME);
+                safeRemoveItem(STORAGE_KEYS.CURRENT_MODE);
+                return false;
+            }
+
+            const remainingTime = Math.ceil((endTime - now) / 1000);
+            timeLeft = remainingTime;
+            
+            const storedMode = safeGetItem(STORAGE_KEYS.CURRENT_MODE);
+            if (storedMode) {
+                isWorkTime = storedMode === 'work';
+            }
+            
+            const storedCycles = safeGetItem(STORAGE_KEYS.CYCLES);
+            if (storedCycles) {
+                cyclesCompleted = parseInt(storedCycles, 10);
+            }
+            
+            const storedIsLongBreak = safeGetItem(STORAGE_KEYS.IS_LONG_BREAK);
+            if (storedIsLongBreak) {
+                isLongBreak = storedIsLongBreak === 'true';
+            }
+
+            return true;
+        } catch (error) {
+            console.warn('Error checking stored timer:', error);
+            return false;
+        }
+    }
+
+    function loadStoredSettings() {
+        // Helper function to safely parse numbers with validation
+        const safeParseInt = (value, defaultValue) => {
+            const parsed = parseInt(value);
+            return (!isNaN(parsed) && parsed > 0) ? parsed : defaultValue;
+        };
+
+        WORK_TIME = safeParseInt(localStorage.getItem('workTime'), 15);
+        BREAK_TIME = safeParseInt(localStorage.getItem('breakTime'), 15);
+        LONG_BREAK_TIME = safeParseInt(localStorage.getItem('longBreakTime'), 900);
+        targetCycles = safeParseInt(localStorage.getItem(STORAGE_KEYS.TARGET_CYCLES), 4);
+
+        // Clean up invalid values if found
+        if (WORK_TIME !== parseInt(localStorage.getItem('workTime'))) {
+            localStorage.setItem('workTime', WORK_TIME.toString());
+        }
+        if (BREAK_TIME !== parseInt(localStorage.getItem('breakTime'))) {
+            localStorage.setItem('breakTime', BREAK_TIME.toString());
+        }
+        if (LONG_BREAK_TIME !== parseInt(localStorage.getItem('longBreakTime'))) {
+            localStorage.setItem('longBreakTime', LONG_BREAK_TIME.toString());
+        }
+        if (targetCycles !== parseInt(localStorage.getItem(STORAGE_KEYS.TARGET_CYCLES))) {
+            localStorage.setItem(STORAGE_KEYS.TARGET_CYCLES, targetCycles.toString());
+        }
+    }
+
+    settingsBtn.addEventListener('click', openSettings);
+    saveSettingsBtn.addEventListener('click', saveSettings);
+    toggleBtn.addEventListener('click', toggleTimer);
+    resetBtn.addEventListener('click', resetTimer);
+
+    loadStoredSettings();
+    updateDisplay();
+    updateCycleCount();
+    checkStoredTimer();
+
+    // Add visibility change handler that uses the same logic
+    document.addEventListener('visibilitychange', () => {
+        if (!isRunning) return;
+
+        if (document.hidden) {
+            // Store the time when tab becomes hidden
+            lastVisibleTime = Date.now();
+            if (timerInterval) {
+                clearInterval(timerInterval);
+                timerInterval = null;  // Add this
+            }
+        } else {
+            // Calculate elapsed time and update timer state
+            const now = Date.now();
+            const elapsedSeconds = Math.floor((now - lastVisibleTime) / 1000);
+            
+            // Update timeLeft
+            timeLeft = Math.max(0, timeLeft - elapsedSeconds);
+            updateDisplay();
+
+            // Clear any existing interval just in case
+            if (timerInterval) {
+                clearInterval(timerInterval);
+            }
+
+            // If timer completed while hidden, handle it
+            if (timeLeft === 0) {
+                handleTimerCompletion();
+                lastRealTime = null;
+            }
+            
+            // Always restart the interval if we're still running
+            if (isRunning) {
+                lastRealTime = now;
+                timerInterval = setInterval(updateTimer, 1000);
+            }
+        }
+    });
+});
+
+// Replace the createAudioElement function with this simpler version
+function createAudioElement(mp3Path, oggPath) {
+    const audio = new Audio();
+    
+    // Add sources
+    const mp3Source = document.createElement('source');
+    const oggSource = document.createElement('source');
+    
+    mp3Source.src = mp3Path;
+    mp3Source.type = 'audio/mpeg';
+    oggSource.src = oggPath;
+    oggSource.type = 'audio/ogg';
+    
+    audio.appendChild(mp3Source);
+    audio.appendChild(oggSource);
+    audio.load(); // Preload the audio
+    
+    return audio;
+}
+
+// Replace the playSound function with this simpler version
+function playSound(audio) {
+    if (audio) {
+        audio.currentTime = 0;
+        const playPromise = audio.play();
+        
+        if (playPromise !== undefined) {
+            playPromise.catch(error => {
+                console.warn('Audio playback failed:', error);
+            });
+        }
+    }
+}
+
+// Add these helper functions for localStorage management
+function safeSetItem(key, value) {
+    try {
+        localStorage.setItem(key, value);
+    } catch (error) {
+        console.warn(`Failed to save to localStorage: ${error.message}`);
+    }
+}
+
+function safeGetItem(key, defaultValue = null) {
+    try {
+        const item = localStorage.getItem(key);
+        return item !== null ? item : defaultValue;
+    } catch (error) {
+        console.warn(`Failed to read from localStorage: ${error.message}`);
+        return defaultValue;
+    }
+}
+
+function safeRemoveItem(key) {
+    try {
+        localStorage.removeItem(key);
+    } catch (error) {
+        console.warn(`Failed to remove from localStorage: ${error.message}`);
+    }
+}
+</file>
+
+</files>
