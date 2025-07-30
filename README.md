@@ -1,4 +1,4 @@
-This is a work in progress. I am building a pomodoro timer and only using AI, I'm not hand writing any of the code. (Also, I seem to be working on it for 15 minutes at a time, once or twice a week.)
+This is a work in progress. I am building a pomodoro timer and only using AI, I'm not hand writing any of the code. It's not exactly vibe coding because I am watching the diffs, suggesting different ways of doing things, correcting it if I don't like the direction, etc. (Also, I seem to be working on it for 15 minutes at a time, once or twice a week.)
 
 **Version 0.3**
 
@@ -17,6 +17,7 @@ I'm having trouble with the design through AI. I am used to tweaking the CSS by 
 * Modal styling is basic, not attractive. It needs a complete overhaul.
 * Needs mobile fine tuning.
 * Settings interface layout not final.
+* "Paused" message doesn't disappear when the timer is un-paused.
 
 **Version 0.2**
 
@@ -24,6 +25,7 @@ I'm having trouble with the design through AI. I am used to tweaking the CSS by 
 * Added rudimentary settings.
   - Need to add ability to pick number of cycles
     
+
 **To do:**
 
 ~~* No options yet.~~
