@@ -1,5 +1,9 @@
 This is a work in progress. I am building a pomodoro timer and only using AI, I'm not hand writing any of the code. It's not exactly vibe coding because I am watching the diffs, suggesting different ways of doing things, correcting it if I don't like the direction, etc. (Also, I seem to be working on it for 15 minutes at a time, once or twice a week.)
 
+**Version 0.29**
+
+Well it happened to me finally. One of the AI models I was using had a stroke and I didn't proofread well enough. I allowed in some terrible code and the timer was not working correctly. Whichever model it was made a large edit and inserted comments with "The rest of the code" instead of actually writing the code. I have reverted back to an earlier version which still has bugs in the pausing feature. 
+
 **Version 0.3**
 
 ![Ver 0.2](https://raw.githubusercontent.com/KevanMacGee/HTML-Pom/refs/heads/main/screenshots/ScreenshotVer0_3.png)
