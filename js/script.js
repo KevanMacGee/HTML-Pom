@@ -57,15 +57,25 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function updateStatus() {
+        // Update text content
         let statusText = isWorkTime ? 'Work Time' : (isLongBreak ? 'Long Break' : 'Break Time');
         if (!isRunning) {
             statusText += ' (Paused)';
-            statusDisplay.classList.remove('pulse-animation');
-        } else {
-            statusDisplay.classList.add('pulse-animation');
         }
         statusDisplay.textContent = statusText;
-        statusDisplay.className = `status-text text-${isWorkTime ? 'success' : 'primary'}${isRunning ? ' pulse-animation' : ''}`;
+
+        // Update CSS classes using classList for better maintainability
+        statusDisplay.className = 'status-text'; // Reset to base class
+
+        if (isWorkTime) {
+            statusDisplay.classList.add('text-success');
+        } else {
+            statusDisplay.classList.add('text-primary');
+        }
+
+        if (isRunning) {
+            statusDisplay.classList.add('pulse-animation');
+        }
     }
 
     function updateCycleCount() {
