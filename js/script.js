@@ -203,6 +203,18 @@ document.addEventListener('DOMContentLoaded', () => {
         updateCycleCount();
     }
 
+    function saveTimerState() {
+        try {
+            const endTime = Date.now() + (timeLeft * 1000);
+            safeSetItem(STORAGE_KEYS.END_TIME, endTime.toString());
+            safeSetItem(STORAGE_KEYS.CURRENT_MODE, isWorkTime ? 'work' : 'break');
+            safeSetItem(STORAGE_KEYS.CYCLES, cyclesCompleted.toString());
+            safeSetItem(STORAGE_KEYS.IS_LONG_BREAK, isLongBreak.toString());
+        } catch (error) {
+            console.warn('Error saving timer state:', error);
+        }
+    }
+
     function openSettings() {
         workDurationInput.value = WORK_TIME / 60;
         breakDurationInput.value = BREAK_TIME / 60;
@@ -325,6 +337,7 @@ document.addEventListener('DOMContentLoaded', () => {
     loadStoredSettings();
     updateDisplay();
     updateCycleCount();
+    updateStatus();
     checkStoredTimer();
 
     // Add visibility change handler that uses the same logic
