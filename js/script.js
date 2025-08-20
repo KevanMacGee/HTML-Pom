@@ -257,6 +257,7 @@ document.addEventListener('DOMContentLoaded', () => {
             isRunning = false;
             toggleBtn.textContent = 'Start';
             toggleBtn.className = 'btn btn-primary btn-lg';
+            updateStatus();
             // Optional: Play a completion sound or show a notification
         }
     }
@@ -376,6 +377,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 lastRealTime = now;
                 timerInterval = setInterval(updateTimer, 1000);
             }
+            updateStatus();
         }
     });
 });
