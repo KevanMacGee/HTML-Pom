@@ -231,16 +231,19 @@ document.addEventListener('DOMContentLoaded', () => {
             const cycles = parseInt(cycleTargetInput.value, 10);
 
             if (workDuration && breakDuration && longBreakDuration && cycles) {
-                safeSetItem('workDuration', workDuration.toString());
-                safeSetItem('breakDuration', breakDuration.toString());
-                safeSetItem('longBreakDuration', longBreakDuration.toString());
-                safeSetItem('targetCycles', cycles.toString());
+                // Save durations in SECONDS for consistency
+                safeSetItem('workTime', Math.floor(workDuration * 60).toString());
+                safeSetItem('breakTime', Math.floor(breakDuration * 60).toString());
+                safeSetItem('longBreakTime', Math.floor(longBreakDuration * 60).toString());
+                safeSetItem(STORAGE_KEYS.TARGET_CYCLES, cycles.toString());
 
+                // Update in-memory variables (in seconds)
                 WORK_TIME = Math.floor(workDuration * 60);
                 BREAK_TIME = Math.floor(breakDuration * 60);
                 LONG_BREAK_TIME = Math.floor(longBreakDuration * 60);
                 targetCycles = cycles;
 
+                // If timer is idle, reset timeLeft to new work duration
                 if (!isRunning) {
                     timeLeft = WORK_TIME;
                     updateDisplay();
@@ -310,6 +313,26 @@ document.addEventListener('DOMContentLoaded', () => {
             return (!isNaN(parsed) && parsed > 0) ? parsed : defaultValue;
         };
 
+        // Migration from legacy keys (stored in minutes) to new keys (stored in seconds)
+        const legacyWork = localStorage.getItem('workDuration');
+        const legacyBreak = localStorage.getItem('breakDuration');
+        const legacyLong = localStorage.getItem('longBreakDuration');
+        const legacyCycles = localStorage.getItem('targetCycles');
+
+        if (legacyWork && !localStorage.getItem('workTime')) {
+            safeSetItem('workTime', Math.floor(parseFloat(legacyWork) * 60).toString());
+        }
+        if (legacyBreak && !localStorage.getItem('breakTime')) {
+            safeSetItem('breakTime', Math.floor(parseFloat(legacyBreak) * 60).toString());
+        }
+        if (legacyLong && !localStorage.getItem('longBreakTime')) {
+            safeSetItem('longBreakTime', Math.floor(parseFloat(legacyLong) * 60).toString());
+        }
+        if (legacyCycles && !localStorage.getItem(STORAGE_KEYS.TARGET_CYCLES)) {
+            safeSetItem(STORAGE_KEYS.TARGET_CYCLES, parseInt(legacyCycles, 10).toString());
+        }
+
+        // Load settings from the unified keys (all in seconds)
         WORK_TIME = safeParseInt(localStorage.getItem('workTime'), 15);
         BREAK_TIME = safeParseInt(localStorage.getItem('breakTime'), 15);
         LONG_BREAK_TIME = safeParseInt(localStorage.getItem('longBreakTime'), 900);
