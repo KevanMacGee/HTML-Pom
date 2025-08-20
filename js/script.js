@@ -48,7 +48,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     let lastRealTime = null;
     let lastVisibleTime = Date.now();
-    let wasRunning = false;
 
     function updateDisplay() {
         const minutes = Math.floor(timeLeft / 60);
@@ -177,6 +176,7 @@ document.addEventListener('DOMContentLoaded', () => {
     function resetTimer() {
         // Clear interval and reset running state
         clearInterval(timerInterval);
+        timerInterval = null;
         isRunning = false;
         lastRealTime = null;
 
@@ -248,6 +248,9 @@ document.addEventListener('DOMContentLoaded', () => {
                     timeLeft = WORK_TIME;
                     updateDisplay();
                 }
+                
+                // Close the modal after saving
+                bootstrap.Modal.getInstance(document.getElementById('settingsModal'))?.hide();
             }
         } catch (error) {
             console.warn('Error saving settings:', error);
