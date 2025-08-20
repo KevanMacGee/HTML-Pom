@@ -158,15 +158,6 @@ document.addEventListener('DOMContentLoaded', () => {
             timerInterval = setInterval(updateTimer, 1000);
             saveTimerState();
 
-            // Play appropriate sound
-            if (isWorkTime) {
-                playSound(workSound);
-            } else if (isLongBreak) {
-                playSound(longBreakSound);
-            } else {
-                playSound(breakSound);
-            }
-
             toggleBtn.textContent = 'Pause';
             toggleBtn.className = 'btn btn-warning btn-lg';
         }
