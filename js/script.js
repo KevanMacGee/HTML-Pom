@@ -19,7 +19,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const cycleTargetInput = document.getElementById('cycleTarget');
     let cyclesCompleted = 0;
     let targetCycles = 4;
-    let isWorkComplete = false;  // Add this flag to track work completion
     let timerInterval = null;  // Add this line
 
     // Changed from 45 and 15 minutes to 15 seconds each
@@ -108,33 +107,51 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
+    // Helper function to properly stop the timer
+    function stopTimer() {
+        isRunning = false;
+        if (timerInterval) {
+            clearInterval(timerInterval);
+            timerInterval = null;
+        }
+        if (toggleBtn) {
+            toggleBtn.textContent = 'Start';
+            toggleBtn.className = 'btn btn-primary btn-lg';
+        }
+        updateStatus();
+        saveTimerState();
+    }
+
     // Update the handleTimerCompletion function to use the simpler audio
     function handleTimerCompletion() {
         if (isWorkTime) {
+            // Count the Pomodoro immediately when work ends
+            cyclesCompleted++;
+            updateCycleCount();
+            
+            // Check if we've reached the target
+            if (targetCycles && cyclesCompleted >= targetCycles) {
+                // Stop everything - goal reached!
+                stopTimer();
+                checkCycleTarget(); // This might show a completion message
+                return;
+            }
+            
+            // Transition to break
             isWorkTime = false;
-            isWorkComplete = true;
-
-            if ((cyclesCompleted + 1) % CYCLES_BEFORE_LONG_BREAK === 0) {
-                isLongBreak = true;
-                timeLeft = LONG_BREAK_TIME;
-                playSound(longBreakSound); // Already using playSound helper ✓
-            } else {
-                isLongBreak = false;
-                timeLeft = BREAK_TIME;
-                playSound(breakSound); // Already using playSound helper ✓
-            }
+            isLongBreak = (cyclesCompleted % CYCLES_BEFORE_LONG_BREAK === 0);
+            timeLeft = isLongBreak ? LONG_BREAK_TIME : BREAK_TIME;
+            playSound(isLongBreak ? longBreakSound : breakSound);
         } else {
-            if (isWorkComplete) {
-                cyclesCompleted++;
-                updateCycleCount();
-                checkCycleTarget();
-            }
+            // Break ended → back to work
             isWorkTime = true;
-            isWorkComplete = false;
+            isLongBreak = false;
             timeLeft = WORK_TIME;
-            playSound(workSound); // Already using playSound helper ✓
+            playSound(workSound);
         }
+        
         updateStatus();
+        saveTimerState();
     }
 
     // Update toggleTimer to initialize lastRealTime
@@ -173,7 +190,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // Reset timer state
         isWorkTime = true;
-        isWorkComplete = false;
         isLongBreak = false;
         timeLeft = WORK_TIME;
         cyclesCompleted = 0;
