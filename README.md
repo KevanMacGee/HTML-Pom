@@ -1,6 +1,6 @@
 This is a work in progress. I am building a pomodoro timer and only using AI, I'm not hand writing any of the code. It's not exactly vibe coding because I am watching the diffs, suggesting different ways of doing things, correcting it if I don't like the direction, etc. I am also bouncing changes off other AI models rather than just accepting them blindly. (Also, I seem to be working on it for 15 minutes at a time, once or twice a week.)
 
-##### Version .4
+##### Version 0.4
 
 Fixed a lot of the errors that were a result of the rollback described below. Changed the Settings modal so that now it closes upon hitting save. Removed some unused code that ended up in there due to the rollback. I have added Warp from warp.dev to my workflow and working in the terminal with just a hint of IDE has been a gamechanger.
 
