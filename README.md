@@ -1,4 +1,4 @@
-This is a work in progress. I am building a pomodoro timer and only using AI, I'm not hand writing any of the code. It's not exactly vibe coding because I am watching the diffs, suggesting different ways of doing things, correcting it if I don't like the direction, etc. I am also bouncing changes off other AI models rather than just accepting them blindly. (Also, I seem to be working on it for 15 minutes at a time, once or twice a week.)
+This is a work in progress. I am building a pomodoro timer and only using AI, I'm not hand writing any of the code. It's not exactly vibe coding because I am watching the diffs, suggesting different ways of doing things, correcting it if I don't like the direction, etc. I am also bouncing changes off other AI models rather than just accepting them blindly. (Also, I seem to be working on it for 15 minutes at a time, once or twice a month.)
 
 ##### Version 0.4
 
